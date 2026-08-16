@@ -13,7 +13,7 @@ import google.generativeai as genai
 logger = logging.getLogger(__name__)
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-GEMINI_MODEL   = "gemini-2.0-flash"
+GEMINI_MODEL   = "gemini-2.5-flash"
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  PROMPT
