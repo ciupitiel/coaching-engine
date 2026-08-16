@@ -1,0 +1,67 @@
+# =============================================================================
+#  docker-compose.yml — Coaching Engine · Development Local
+#  Noian Cristian · Etapa 3
+#  -----------------------------------------------------------------------------
+#  Folosit DOAR pentru development local — nu pentru producție.
+#  Pornește două containere simultan:
+#    · db  — PostgreSQL 16 local (pentru teste fără internet)
+#    · api — FastAPI cu codul tău (construit din Dockerfile)
+#
+#  Comenzi:
+#    docker compose up          → pornește tot
+#    docker compose up --build  → rebuild + pornește (după schimbări de cod)
+#    docker compose down        → oprește și șterge containerele
+#    docker compose down -v     → oprește + șterge și datele din DB local
+#
+#  Notă: În producție pe Render.com, docker-compose NU e folosit.
+#  Render citește Dockerfile direct și DATABASE_URL vine din dashboard.
+# =============================================================================
+
+services:
+
+  # ── PostgreSQL local ────────────────────────────────────────────────────────
+  # Folosit doar când lucrezi offline sau vrei să testezi fără Neon.tech.
+  # Datele sunt persistate în volumul pg_data (supraviețuiesc la restart).
+  db:
+    image: postgres:16-alpine        # alpine = imagine minimală (~80MB)
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER:     coaching
+      POSTGRES_PASSWORD: coaching_dev
+      POSTGRES_DB:       coaching_db
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"                  # accesibil și din afara containerului
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coaching -d coaching_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── FastAPI API ─────────────────────────────────────────────────────────────
+  # Construit din Dockerfile. Așteptă ca db să fie healthy înainte să pornească.
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy   # pornește DUPĂ ce PostgreSQL e gata
+    environment:
+      # Când rulezi cu docker-compose, folosești DB-ul local de mai sus.
+      # Schimbă cu URL-ul Neon.tech dacă vrei să testezi cu DB-ul de producție.
+      DATABASE_URL: postgresql://coaching:coaching_dev@db:5432/coaching_db
+      GROQ_API_KEY: ${GROQ_API_KEY}  # citit din .env automat de docker-compose
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount live al codului — schimbările de .py se reflectă imediat
+      # fără să fie nevoie de docker compose up --build
+      - .:/app
+      # Excludem venv-ul local din mount (container are propriul venv)
+      - /app/venv
+
+# ── Volume persistente ─────────────────────────────────────────────────────────
+volumes:
+  pg_data:
+    driver: local

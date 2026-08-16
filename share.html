@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progres · Noian Lab</title>
+  <meta name="description" content="Progresul meu — generat cu Noian Lab">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    :root {
+      --bg:       #080808;
+      --surf:     #111111;
+      --surf2:    #161616;
+      --border:   #1e1e1e;
+      --accent:   #c4622d;
+      --accent-h: #d4722d;
+      --text:     #d4d0cb;
+      --text-2:   #8e8880;
+      --text-3:   #4a4a4a;
+      --green:    #4ade80;
+      --radius:   14px;
+      --ease:     cubic-bezier(0.4,0,0.2,1);
+    }
+    html { scroll-behavior:smooth; }
+    body {
+      background:var(--bg); color:var(--text);
+      font-family:'Inter',system-ui,sans-serif;
+      line-height:1.6; -webkit-font-smoothing:antialiased;
+      min-height:100vh; display:flex; flex-direction:column;
+    }
+
+    /* ── NAV ──────────────────────────────────────────────────────────────── */
+    nav {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 24px; height:56px;
+      border-bottom:1px solid var(--border);
+      background:rgba(8,8,8,0.9);
+      backdrop-filter:blur(20px);
+      position:sticky; top:0; z-index:10;
+    }
+    .nav-brand { display:flex; align-items:center; gap:8px; text-decoration:none; }
+    .nav-dot   { width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent); }
+    .nav-name  { font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text); }
+    .nav-cta   {
+      font-size:12px; font-weight:600; padding:7px 14px;
+      background:var(--accent); color:#fff; border-radius:8px;
+      text-decoration:none; letter-spacing:0.3px;
+      transition:background .2s var(--ease);
+    }
+    .nav-cta:hover { background:var(--accent-h); }
+
+    /* ── MAIN ─────────────────────────────────────────────────────────────── */
+    main { flex:1; max-width:600px; margin:0 auto; width:100%; padding:32px 16px 48px; }
+
+    #loadingState { text-align:center; padding:80px 0; color:var(--text-3); font-size:14px; }
+    #errorState   { text-align:center; padding:80px 0; }
+    #errorState p { color:var(--text-3); font-size:14px; }
+    #errorState a { color:var(--accent); text-decoration:none; font-size:13px; margin-top:12px; display:inline-block; }
+
+    /* ── HEADER USER ──────────────────────────────────────────────────────── */
+    .share-header    { margin-bottom:24px; }
+    .share-title     { font-size:24px; font-weight:700; letter-spacing:-0.5px; color:var(--text); margin-bottom:4px; }
+    .share-subtitle  { font-size:13px; color:var(--text-3); }
+
+    /* ── STAT CARDS ───────────────────────────────────────────────────────── */
+    .stats-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+    .stat-card {
+      background:var(--surf); border:1px solid var(--border); border-radius:var(--radius);
+      padding:20px 18px; display:flex; flex-direction:column; gap:4px;
+    }
+    .stat-val   { font-size:28px; font-weight:700; letter-spacing:-1px; color:var(--text); line-height:1; }
+    .stat-label { font-size:11px; color:var(--text-3); letter-spacing:0.5px; text-transform:uppercase; }
+    .stat-badge {
+      display:inline-block; font-size:10px; font-weight:600; padding:2px 8px;
+      border-radius:20px; margin-top:4px; width:fit-content;
+    }
+    .badge-green { background:rgba(74,222,128,0.15); color:var(--green); }
+    .badge-gray  { background:rgba(255,255,255,0.06); color:var(--text-3); }
+
+    /* ── CARD ─────────────────────────────────────────────────────────────── */
+    .card {
+      background:var(--surf); border:1px solid var(--border);
+      border-radius:var(--radius); padding:20px 18px; margin-bottom:16px;
+    }
+    .card-label {
+      font-size:10px; font-weight:600; letter-spacing:2px;
+      text-transform:uppercase; color:var(--text-3); margin-bottom:14px;
+    }
+
+    /* ── COMPLIANCE ───────────────────────────────────────────────────────── */
+    .compliance-row  { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .compliance-pct  { font-size:22px; font-weight:700; color:var(--text); }
+    .compliance-note { font-size:12px; color:var(--text-3); }
+    .progress-track  { height:6px; background:var(--surf2); border-radius:3px; overflow:hidden; }
+    .progress-fill   { height:100%; border-radius:3px; transition:width .6s var(--ease); }
+
+    /* ── CTA ──────────────────────────────────────────────────────────────── */
+    .cta-card {
+      background:linear-gradient(135deg, rgba(196,98,45,0.08) 0%, transparent 60%);
+      border:1px solid rgba(196,98,45,0.2); border-radius:var(--radius);
+      padding:28px 24px; text-align:center; margin-bottom:16px;
+    }
+    .cta-card p      { font-size:14px; color:var(--text-2); margin-bottom:16px; line-height:1.6; }
+    .cta-card strong { color:var(--accent); }
+    .cta-btn {
+      display:inline-block; padding:13px 28px;
+      background:var(--accent); color:#fff; border-radius:10px;
+      font-size:14px; font-weight:600; text-decoration:none;
+      letter-spacing:0.2px; transition:background .2s var(--ease);
+    }
+    .cta-btn:hover { background:var(--accent-h); }
+
+    /* ── FOOTER ───────────────────────────────────────────────────────────── */
+    footer {
+      text-align:center; padding:20px; border-top:1px solid var(--border);
+      font-size:11px; color:var(--text-3); letter-spacing:0.5px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/landing">
+    <div class="nav-dot"></div>
+    <span class="nav-name">Noian Lab</span>
+  </a>
+  <a class="nav-cta" href="/landing">Încearcă gratuit</a>
+</nav>
+
+<main>
+  <div id="loadingState">Se încarcă progresul...</div>
+
+  <div id="errorState" style="display:none">
+    <p>Link invalid sau revocat.</p>
+    <a href="/landing">← Înapoi la Noian Lab</a>
+  </div>
+
+  <div id="shareContent" style="display:none">
+
+    <!-- Header -->
+    <div class="share-header">
+      <h1 class="share-title" id="shareTitle">Progresul meu</h1>
+      <p class="share-subtitle" id="shareSubtitle">generat cu Noian Lab</p>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-val" id="streakVal">—</span>
+        <span class="stat-label">Streak actual</span>
+        <span class="stat-badge" id="streakBadge">zile consecutive</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-val" id="weightChangeVal">—</span>
+        <span class="stat-label">Schimbare totală</span>
+        <span class="stat-badge badge-gray" id="weightRange">—</span>
+      </div>
+    </div>
+
+    <!-- Weight chart -->
+    <div class="card" id="chartCard" style="display:none">
+      <p class="card-label">Evoluție Greutate</p>
+      <div style="position:relative;height:240px">
+        <canvas id="weightChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Compliance săptămâna aceasta -->
+    <div class="card" id="complianceCard" style="display:none">
+      <p class="card-label">Compliance Caloric · Această Săptămână</p>
+      <div class="compliance-row">
+        <span class="compliance-pct" id="compliancePct">—%</span>
+        <span class="compliance-note" id="complianceNote">față de target</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="complianceFill" style="width:0%;background:var(--accent)"></div>
+      </div>
+      <p style="font-size:11px;color:var(--text-3);margin-top:8px" id="complianceDays"></p>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-card">
+      <p>Acest progres a fost generat cu <strong>Noian Lab</strong> —<br>
+         coaching nutrițional AI, gratuit pentru oricine.</p>
+      <a class="cta-btn" href="/landing">Creează-ți și tu un cont gratuit</a>
+    </div>
+
+  </div>
+</main>
+
+<footer>Noian Cristian · Bazat pe inteligență artificială</footer>
+
+<script>
+// ── Extrage token din URL: /share/abc123 ─────────────────────────────────────
+const _token = window.location.pathname.split('/share/')[1]?.split('/')[0];
+
+async function initSharePage() {
+  if (!_token) { showError(); return; }
+  try {
+    const res  = await fetch(`/share/${_token}/data`);
+    if (!res.ok) { showError(); return; }
+    const data = await res.json();
+    renderSharePage(data);
+  } catch(e) {
+    showError();
+  }
+}
+
+function showError() {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('errorState').style.display   = 'block';
+}
+
+function renderSharePage(data) {
+  document.getElementById('loadingState').style.display  = 'none';
+  document.getElementById('shareContent').style.display  = 'block';
+
+  // ── Titlu ─────────────────────────────────────────────────────────────────
+  document.getElementById('shareTitle').textContent    = `Progresul lui ${data.display_name}`;
+  document.getElementById('shareSubtitle').textContent = 'generat cu Noian Lab';
+  document.title = `Progresul lui ${data.display_name} · Noian Lab`;
+
+  // ── Streak ────────────────────────────────────────────────────────────────
+  const streak = data.streak?.current ?? 0;
+  document.getElementById('streakVal').textContent = streak;
+  const badgeEl = document.getElementById('streakBadge');
+  badgeEl.textContent  = streak > 0 ? 'zile consecutive 🔥' : 'începe azi';
+  badgeEl.className    = `stat-badge ${streak > 0 ? 'badge-green' : 'badge-gray'}`;
+
+  // ── Schimbare greutate ────────────────────────────────────────────────────
+  const checkins = data.checkins ?? [];
+  if (checkins.length >= 2) {
+    const first  = checkins[0].weight_kg;
+    const last   = checkins[checkins.length - 1].weight_kg;
+    const change = +(last - first).toFixed(1);
+    const prefix = change > 0 ? '+' : '';
+    document.getElementById('weightChangeVal').textContent = `${prefix}${change} kg`;
+    document.getElementById('weightRange').textContent =
+      `${first} kg → ${last} kg`;
+    document.getElementById('weightRange').className =
+      `stat-badge ${change < 0 ? 'badge-green' : 'badge-gray'}`;
+  }
+
+  // ── Grafic greutate ───────────────────────────────────────────────────────
+  if (checkins.length >= 3) {
+    document.getElementById('chartCard').style.display = 'block';
+    renderWeightChart(checkins);
+  }
+
+  // ── Compliance ────────────────────────────────────────────────────────────
+  const comp = data.compliance;
+  if (comp?.pct !== null && comp?.pct !== undefined) {
+    document.getElementById('complianceCard').style.display = 'block';
+    const pct = comp.pct;
+    document.getElementById('compliancePct').textContent = `${pct}%`;
+    document.getElementById('complianceNote').textContent =
+      `față de target (${comp.target_kcal} kcal/zi)`;
+    document.getElementById('complianceDays').textContent =
+      `${comp.days_logged} din 7 zile loggate această săptămână`;
+
+    const fill  = document.getElementById('complianceFill');
+    const color = pct >= 90 && pct <= 115 ? '#4ade80' : pct >= 70 ? '#facc15' : '#ef4444';
+    fill.style.width      = `${Math.min(pct, 100)}%`;
+    fill.style.background = color;
+  }
+}
+
+function renderWeightChart(checkins) {
+  const n       = checkins.length;
+  const labels  = checkins.map(c => {
+    const d = new Date(c.date + 'T00:00:00');
+    return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}`;
+  });
+  const weights = checkins.map(c => c.weight_kg);
+
+  // Medie mobilă 7 zile
+  const movAvg = weights.map((_, i, arr) => {
+    const slice = arr.slice(Math.max(0, i - 6), i + 1);
+    return Math.round(slice.reduce((a, b) => a + b, 0) / slice.length * 10) / 10;
+  });
+
+  const ctx = document.getElementById('weightChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label:                     'Greutate',
+          data:                      weights,
+          borderColor:               '#c4622d',
+          backgroundColor:           'rgba(196,98,45,0.07)',
+          pointBackgroundColor:       '#c4622d',
+          pointBorderColor:           '#080808',
+          pointBorderWidth:           2,
+          pointRadius:               4,
+          pointHoverRadius:          6,
+          tension:                   0.35,
+          fill:                      true,
+          borderWidth:               2,
+          order:                     1,
+        },
+        {
+          label:            'Medie 7 zile',
+          data:             movAvg,
+          borderColor:      'rgba(91,156,246,0.7)',
+          backgroundColor:  'transparent',
+          pointRadius:      0,
+          borderWidth:      1.5,
+          borderDash:       [5, 3],
+          tension:          0.4,
+          fill:             false,
+          order:            2,
+        },
+      ],
+    },
+    options: {
+      responsive:          true,
+      maintainAspectRatio: false,
+      interaction:         { mode:'index', intersect:false },
+      plugins: {
+        legend: {
+          display:  true, position:'bottom',
+          labels: { color:'#4a4a4a', font:{ family:'Inter', size:10 }, boxWidth:16, padding:10, usePointStyle:true },
+        },
+        tooltip: {
+          backgroundColor:'#161616', borderColor:'#2e2e2e', borderWidth:1,
+          titleColor:'#6b6560', bodyColor:'#c4622d', padding:10,
+          callbacks: {
+            label: ctx => ctx.datasetIndex === 0 ? `  ${ctx.parsed.y} kg` : null,
+          },
+        },
+      },
+      scales: {
+        x: { grid:{ color:'#111' }, ticks:{ color:'#3a3a3a', font:{ family:'Inter', size:10 } }, border:{ display:false } },
+        y: { grid:{ color:'#111' }, ticks:{ color:'#3a3a3a', font:{ family:'Inter', size:10 }, callback: v=>`${v} kg` }, border:{ display:false } },
+      },
+    },
+  });
+}
+
+initSharePage();
+</script>
+</body>
+</html>

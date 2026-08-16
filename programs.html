@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Programe · Noian Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#080808;--surf:#111;--surf2:#161616;--border:#1e1e1e;
+      --accent:#c4622d;--accent-d:rgba(196,98,45,0.12);
+      --text:#d4d0cb;--text2:#8e8880;--text3:#3e3e3e;
+      --green:#22c55e;--radius:14px;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100dvh}
+    nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:rgba(8,8,8,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+    .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .nav-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+    .nav-title{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+    .btn{background:var(--surf);border:1px solid var(--border);border-radius:8px;color:var(--text2);cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;padding:8px 16px;transition:all .15s;text-decoration:none;display:inline-block}
+    .btn:hover{border-color:var(--accent);color:var(--text)}
+    .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+    .btn-primary:hover{opacity:.88;color:#fff}
+    main{max-width:1060px;margin:0 auto;padding:60px 24px 100px}
+    .hero{text-align:center;margin-bottom:72px}
+    .hero-tag{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+    .hero h1{font-size:clamp(2.2rem,5vw,3.4rem);font-weight:300;letter-spacing:-.03em;line-height:1.1;margin-bottom:16px}
+    .hero h1 em{color:var(--accent);font-style:italic;font-weight:400}
+    .hero p{font-size:16px;color:var(--text2);line-height:1.7;max-width:520px;margin:0 auto}
+    .programs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:60px}
+    @media(max-width:840px){.programs-grid{grid-template-columns:1fr}}
+    .program-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s,transform .2s;position:relative}
+    .program-card:hover{border-color:rgba(196,98,45,.35);transform:translateY(-3px)}
+    .program-card.featured{border-color:rgba(196,98,45,.3);background:linear-gradient(180deg,var(--surf) 0%,rgba(196,98,45,.02) 100%)}
+    .program-card.featured::before{content:'⭐ POPULAR';position:absolute;top:16px;right:16px;font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--accent);background:var(--accent-d);border:1px solid rgba(196,98,45,.3);border-radius:999px;padding:3px 10px}
+    .program-body{padding:28px 24px;flex:1;display:flex;flex-direction:column}
+    .program-category{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+    .program-name{font-size:20px;font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.3}
+    .program-tagline{font-size:13px;color:var(--text2);margin-bottom:16px}
+    .program-duration{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);background:var(--surf2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;margin-bottom:20px}
+    .program-desc{font-size:13.5px;color:var(--text2);line-height:1.7;margin-bottom:20px;flex:1}
+    .program-features{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+    .program-features li{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text)}
+    .program-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;font-size:13px}
+    .program-footer{padding:20px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .program-price{font-size:28px;font-weight:700;color:var(--text);letter-spacing:-.03em;line-height:1}
+    .program-price span{font-size:14px;font-weight:400;color:var(--text2);margin-left:2px}
+    .btn-buy{background:var(--accent);border:none;border-radius:10px;color:#fff;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;padding:12px 24px;transition:opacity .15s;white-space:nowrap}
+    .btn-buy:hover:not(:disabled){opacity:.88}
+    .btn-buy:disabled{opacity:.45;cursor:not-allowed}
+    .btn-buy.owned{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+    .btn-buy.owned:hover{opacity:1;background:rgba(34,197,94,.2)}
+    .my-programs{margin-bottom:60px}
+    .section-title{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:24px}
+    .owned-card{display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--surf);border:1px solid rgba(34,197,94,.2);border-radius:var(--radius);padding:18px 22px;margin-bottom:10px;flex-wrap:wrap}
+    .owned-name{font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px}
+    .owned-date{font-size:12px;color:var(--text2)}
+    .badge-owned{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--green);font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px;flex-shrink:0}
+    .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .faq{max-width:640px;margin:0 auto}
+    .faq-title{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:28px;text-align:center}
+    .faq-item{border-bottom:1px solid var(--border);padding:18px 0}
+    .faq-q{font-size:14px;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .faq-q::after{content:'+';font-size:18px;color:var(--text2);flex-shrink:0;transition:transform .2s}
+    .faq-item.open .faq-q::after{transform:rotate(45deg)}
+    .faq-a{font-size:13.5px;color:var(--text2);line-height:1.75;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s}
+    .faq-item.open .faq-a{max-height:200px;padding-top:12px}
+    .toast{position:fixed;top:20px;right:20px;z-index:999;background:var(--surf);border:1px solid rgba(34,197,94,.35);border-radius:10px;padding:13px 18px;font-size:13px;color:var(--green);box-shadow:0 8px 32px rgba(0,0,0,.5);display:none;animation:toastIn .3s ease}
+    .toast.error{border-color:rgba(239,68,68,.35);color:#ef4444}
+    @keyframes toastIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+    footer{text-align:center;padding:32px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)}
+    footer a{color:var(--text2);text-decoration:none;margin:0 10px}
+    footer a:hover{color:var(--accent)}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/">
+    <div class="nav-dot"></div>
+    <span class="nav-title">Noian Lab</span>
+  </a>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span id="navUserEmail" style="font-size:12px;color:var(--text2);display:none"></span>
+    <a href="/" class="btn">← App</a>
+  </div>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<main>
+  <!-- HERO -->
+  <div class="hero">
+    <p class="hero-tag">● Programe Structurate</p>
+    <h1>Rezultate clare.<br><em>Fără guess-work.</em></h1>
+    <p>Programe construite pe știință, personalizate la datele tale din aplicație. Nu diete random — sisteme care funcționează.</p>
+  </div>
+
+  <!-- PROGRAMELE MELE (dacă e logat și are) -->
+  <div class="my-programs" id="myProgramsSection" style="display:none">
+    <p class="section-title">Programele Mele</p>
+    <div id="myProgramsList"></div>
+  </div>
+
+  <!-- CATALOG -->
+  <p class="section-title" style="margin-bottom:24px">Catalog Programe</p>
+  <div class="programs-grid" id="programsGrid">
+    <div style="grid-column:1/-1;text-align:center;padding:48px 0;color:var(--text2)">
+      <div class="spinner" style="border-top-color:var(--accent)"></div> Se încarcă...
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq">
+    <p class="faq-title">Întrebări frecvente</p>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Cât durează accesul după cumpărare?</div>
+      <div class="faq-a">Depinde de program — 6 luni, 12 luni sau pe viață (menționat în features). Nu expiră brusc, primești notificare în avans.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Se pot returna programele?</div>
+      <div class="faq-a">Da — 14 zile garanție dacă nu ai accesat conținutul. Trimite un email la contact@noianlab.ro.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Programele sunt personalizate?</div>
+      <div class="faq-a">Macros-urile sunt calculate automat din profilul tău din aplicație. Planurile alimentare sunt ghiduri structurate, nu meniuri identice pentru toată lumea.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Plata este securizată?</div>
+      <div class="faq-a">Plată prin Stripe — cel mai sigur processor de plăți. Nu stocăm datele cardului. Factura e disponibilă în portalul Stripe.</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div>
+    <a href="/">App</a>
+    <a href="/privacy">Confidențialitate</a>
+    <a href="/terms">Termeni</a>
+  </div>
+  <div style="margin-top:12px">Noian Lab · Bazat pe inteligență artificială</div>
+</footer>
+
+<script>
+const _token = localStorage.getItem('coaching_token') || '';
+let _ownedSlugs = new Set();
+
+function toast(msg, ok=true) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (ok ? '' : ' error');
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 3500);
+}
+
+function toggleFaq(el) {
+  el.closest('.faq-item').classList.toggle('open');
+}
+
+// ── Stripe redirect handler ────────────────────────────────────────────────
+(function() {
+  const p = new URLSearchParams(window.location.search).get('program');
+  if (p === 'success') {
+    window.history.replaceState({}, '', '/programs');
+    setTimeout(() => toast('✓ Plată confirmată! Programul e disponibil mai jos.'), 500);
+  } else if (p === 'cancel') {
+    window.history.replaceState({}, '', '/programs');
+  }
+})();
+
+// ── Load catalog ────────────────────────────────────────────────────────────
+async function loadPrograms() {
+  try {
+    const r = await fetch('/programs');
+    const d = await r.json();
+    renderCatalog(d.programs || []);
+  } catch(e) {
+    document.getElementById('programsGrid').innerHTML =
+      '<div style="grid-column:1/-1;text-align:center;color:#ef4444;padding:32px">Eroare la încărcare. Reîncarcă pagina.</div>';
+  }
+}
+
+async function loadMyPrograms() {
+  if (!_token) return;
+  try {
+    const r = await fetch('/programs/my', { headers: { 'Authorization': 'Bearer ' + _token } });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (!d.programs?.length) return;
+
+    _ownedSlugs = new Set(d.programs.map(p => p.slug));
+
+    const sec  = document.getElementById('myProgramsSection');
+    const list = document.getElementById('myProgramsList');
+    sec.style.display = 'block';
+    list.innerHTML = d.programs.map(p => `
+      <div class="owned-card">
+        <div>
+          <div class="owned-name">${p.name}</div>
+          <div class="owned-date">Achiziționat ${p.purchased_at?.slice(0,10) || '—'} · ${p.duration_label}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="badge-owned">✓ Activ</span>
+          ${p.has_content
+            ? `<button class="btn btn-primary" onclick="openContent('${p.slug}')">Accesează →</button>`
+            : `<button class="btn" disabled>Content în curând</button>`}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+function renderCatalog(programs) {
+  const grid = document.getElementById('programsGrid');
+  if (!programs.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text2);padding:48px">Niciun program disponibil momentan.</div>';
+    return;
+  }
+  grid.innerHTML = programs.map((p, i) => {
+    const owned    = _ownedSlugs.has(p.slug);
+    const featured = i === 1;
+    return `
+    <div class="program-card ${featured ? 'featured' : ''}">
+      <div class="program-body">
+        <div class="program-category">${p.category?.toUpperCase() || 'NUTRIȚIE'}</div>
+        <div class="program-name">${p.name}</div>
+        <div class="program-tagline">${p.tagline}</div>
+        <div class="program-duration">⏱ ${p.duration_label}</div>
+        <div class="program-desc">${p.description}</div>
+        <ul class="program-features">
+          ${(p.features || []).map(f => `<li>${f}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="program-footer">
+        <div class="program-price">${p.price_eur}<span>€</span></div>
+        ${owned
+          ? `<button class="btn-buy owned" onclick="openContent('${p.slug}')">✓ Accesat</button>`
+          : p.has_stripe
+            ? `<button class="btn-buy" id="buy-${p.slug}" onclick="buyProgram('${p.slug}', this)">Cumpără acum</button>`
+            : `<button class="btn-buy" disabled title="În curând">În curând</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function buyProgram(slug, btn) {
+  if (!_token) {
+    toast('Conectează-te din aplicație pentru a cumpăra.', false);
+    setTimeout(() => window.location.href = '/', 1800);
+    return;
+  }
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Se procesează...';
+  try {
+    const r = await fetch(`/programs/${slug}/checkout`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + _token }
+    });
+    const d = await r.json();
+    if (d.already_owned) {
+      toast('Deja achiziționat! Reîncarcă pagina.');
+      return;
+    }
+    if (d.checkout_url) {
+      window.location.href = d.checkout_url;
+    } else {
+      toast(d.detail?.message || 'Eroare. Încearcă din nou.', false);
+    }
+  } catch(e) {
+    toast('Eroare de conexiune.', false);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+
+async function openContent(slug) {
+  if (!_token) return;
+  try {
+    const r = await fetch(`/programs/${slug}/content`, {
+      headers: { 'Authorization': 'Bearer ' + _token }
+    });
+    const d = await r.json();
+    if (d.content_url) {
+      window.open(d.content_url, '_blank');
+    } else {
+      toast(d.message || 'Conținutul va fi disponibil în curând.', true);
+    }
+  } catch(e) {
+    toast('Eroare. Încearcă din nou.', false);
+  }
+}
+
+// ── Nav user ───────────────────────────────────────────────────────────────
+if (_token) {
+  try {
+    const payload = JSON.parse(atob(_token.split('.')[1]));
+    const el = document.getElementById('navUserEmail');
+    el.textContent = payload.sub || '';
+    el.style.display = 'inline';
+  } catch(e) {}
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+(async function init() {
+  await loadMyPrograms();
+  await loadPrograms();
+  // Re-render catalog după ce știm ce e owned
+  const r = await fetch('/programs');
+  const d = await r.json();
+  renderCatalog(d.programs || []);
+})();
+</script>
+</body>
+</html>

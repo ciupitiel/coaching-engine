@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Politică de Confidențialitate · Noian Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080808; --surf: #111111; --border: #1e1e1e;
+      --accent: #c4622d; --text: #d4d0cb; --text-2: #8e8880; --text-3: #4a4a4a;
+      --radius: 14px;
+    }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.7; -webkit-font-smoothing: antialiased;
+    }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 60px;
+      background: rgba(8,8,8,0.9); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+    .nav-wordmark { font-size: 14px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text); }
+    .nav-wordmark span { color: var(--accent); }
+    .nav-back { font-size: 13px; color: var(--text-2); text-decoration: none; transition: color .15s; }
+    .nav-back:hover { color: var(--text); }
+
+    .container { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+
+    .doc-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+    .doc-title { font-size: 32px; font-weight: 700; color: #fff; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .doc-meta { font-size: 13px; color: var(--text-3); margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+
+    h2 { font-size: 17px; font-weight: 600; color: #fff; margin: 40px 0 14px; letter-spacing: -0.01em; }
+    h2::before { content: '— '; color: var(--accent); }
+    p { font-size: 14px; color: var(--text-2); margin-bottom: 14px; line-height: 1.75; }
+    ul { padding-left: 20px; margin-bottom: 14px; }
+    ul li { font-size: 14px; color: var(--text-2); margin-bottom: 8px; line-height: 1.65; }
+    strong { color: var(--text); font-weight: 600; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .notice {
+      background: var(--surf); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+      border-radius: var(--radius); padding: 18px 20px; margin: 32px 0;
+      font-size: 13.5px; color: var(--text-2); line-height: 1.65;
+    }
+
+    .data-table {
+      width: 100%; border-collapse: collapse; margin: 20px 0;
+      font-size: 13.5px;
+    }
+    .data-table th {
+      text-align: left; padding: 10px 14px;
+      background: var(--surf); border: 1px solid var(--border);
+      color: var(--text); font-weight: 600; font-size: 12px;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .data-table td {
+      padding: 10px 14px; border: 1px solid var(--border);
+      color: var(--text-2); vertical-align: top;
+    }
+    .data-table tr:hover td { background: rgba(255,255,255,0.01); }
+
+    .rights-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      margin: 20px 0;
+    }
+    .right-card {
+      background: var(--surf); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 18px;
+    }
+    .right-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+    .right-desc { font-size: 12.5px; color: var(--text-2); line-height: 1.55; }
+
+    @media (max-width: 540px) { .rights-grid { grid-template-columns: 1fr; } }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 24px;
+      text-align: center; font-size: 12px; color: var(--text-3);
+    }
+    footer a { color: var(--text-2); text-decoration: none; margin: 0 8px; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/landing">
+    <div class="nav-dot"></div>
+    <span class="nav-wordmark">Noian <span>Lab</span></span>
+  </a>
+  <a class="nav-back" href="/landing">← Înapoi</a>
+</nav>
+
+<div class="container">
+  <p class="doc-eyebrow">Document legal · GDPR</p>
+  <h1 class="doc-title">Politică de Confidențialitate</h1>
+  <p class="doc-meta">Ultima actualizare: iulie 2026 · Conform GDPR (Regulamentul UE 2016/679)</p>
+
+  <div class="notice">
+    Protecția datelor tale este o prioritate. Această politică explică exact ce date colectăm, de ce, cât timp le păstrăm și ce drepturi ai asupra lor. Nu vindem datele tale și nu le folosim pentru publicitate.
+  </div>
+
+  <h2>Cine prelucrează datele</h2>
+  <p><strong>Operator de date:</strong> Noian Cristian, persoană fizică, România</p>
+  <p><strong>Contact:</strong> <a href="mailto:noianlab.contact@gmail.com">noianlab.contact@gmail.com</a></p>
+  <p>Prin utilizarea aplicației Noian Lab ești de acord cu prelucrarea datelor tale în conformitate cu această politică și cu <a href="/terms">Termenii și Condițiile</a>.</p>
+
+  <h2>Ce date colectăm</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Categorie</th><th>Date specifice</th><th>Scopul colectării</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Cont</strong></td>
+        <td>Adresă email, parolă (stocată criptat cu bcrypt)</td>
+        <td>Autentificare, comunicări de serviciu</td>
+      </tr>
+      <tr>
+        <td><strong>Profil fizic</strong></td>
+        <td>Greutate inițială, înălțime, vârstă, sex, nivel activitate, obiectiv</td>
+        <td>Calculul TDEE și macronutrienților personalizați</td>
+      </tr>
+      <tr>
+        <td><strong>Check-in-uri</strong></td>
+        <td>Greutate corporală cu dată și note opționale</td>
+        <td>Urmărirea progresului în timp</td>
+      </tr>
+      <tr>
+        <td><strong>Loguri alimentare</strong></td>
+        <td>Descriere mese, calorii estimate, macros, tip masă, dată</td>
+        <td>Tracking nutrițional zilnic și analize</td>
+      </tr>
+      <tr>
+        <td><strong>Sesiuni TDEE</strong></td>
+        <td>Rezultatele calculelor metabolice (BMR, TDEE, macros)</td>
+        <td>Istoricul calculelor, context pentru AI coach</td>
+      </tr>
+      <tr>
+        <td><strong>Setări</strong></td>
+        <td>Preferințe UI, personă AI, template dietetic, alergii</td>
+        <td>Personalizarea experienței</td>
+      </tr>
+      <tr>
+        <td><strong>Audio (opțional)</strong></td>
+        <td>Înregistrări vocale pentru food logger</td>
+        <td>Transcriere → macros. <strong>Nu stocăm audio</strong>, doar textul transcris.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p><strong>Nu colectăm:</strong> date de locație, cookies de tracking, date financiare, date despre terți.</p>
+
+  <h2>Temeiul legal al prelucrării</h2>
+  <ul>
+    <li><strong>Executarea contractului</strong> (Art. 6(1)(b) GDPR) — datele necesare pentru funcționarea serviciului (cont, calcule, tracking)</li>
+    <li><strong>Consimțământ</strong> (Art. 6(1)(a) GDPR) — date opționale precum înregistrări vocale sau alergii</li>
+    <li><strong>Interes legitim</strong> (Art. 6(1)(f) GDPR) — securitatea serviciului și prevenirea abuzurilor</li>
+  </ul>
+
+  <h2>Cum folosim datele</h2>
+  <ul>
+    <li>Furnizarea calculelor metabolice personalizate</li>
+    <li>Generarea planurilor alimentare și răspunsurilor AI coach prin API-uri externe</li>
+    <li>Afișarea progresului și a analizelor săptămânale</li>
+    <li>Trimiterea emailurilor tranzacționale (confirmare cont, resetare parolă)</li>
+    <li>Detectarea și prevenirea utilizării abuzive a serviciului</li>
+  </ul>
+  <p><strong>Nu folosim datele pentru:</strong> publicitate, profilare comercială, vânzare către terți sau antrenarea modelelor AI proprii.</p>
+
+  <h2>Servicii terțe care procesează date</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Serviciu</th><th>Scop</th><th>Date transmise</th><th>Locație</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Groq / Meta Llama</strong></td>
+        <td>Generare răspunsuri AI (coach, food logger, planuri)</td>
+        <td>Textul mesajelor și contextul nutrițional anonim</td>
+        <td>SUA (SCCs aplicabile)</td>
+      </tr>
+      <tr>
+        <td><strong>Neon.tech</strong></td>
+        <td>Baza de date PostgreSQL</td>
+        <td>Toate datele stocate în cont</td>
+        <td>EU (Frankfurt)</td>
+      </tr>
+      <tr>
+        <td><strong>Resend</strong></td>
+        <td>Trimitere emailuri tranzacționale</td>
+        <td>Adresa de email și conținutul emailului</td>
+        <td>SUA (SCCs aplicabile)</td>
+      </tr>
+      <tr>
+        <td><strong>Render.com</strong></td>
+        <td>Hosting aplicație web</td>
+        <td>Trafic web, logs server</td>
+        <td>SUA (SCCs aplicabile)</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>SCCs = Standard Contractual Clauses — mecanismul GDPR pentru transferuri internaționale de date.</p>
+
+  <h2>Cât timp păstrăm datele</h2>
+  <ul>
+    <li><strong>Datele contului activ</strong> — pe toată durata existenței contului</li>
+    <li><strong>Datele șterse la cerere</strong> — imediat la ștergerea contului prin aplicație</li>
+    <li><strong>Token-uri de resetare parolă</strong> — expirate automat după 15 minute</li>
+    <li><strong>Logs server</strong> — maximum 30 de zile (Render.com), fără date personale identificabile</li>
+  </ul>
+
+  <h2>Drepturile tale (GDPR)</h2>
+  <div class="rights-grid">
+    <div class="right-card">
+      <div class="right-title">Dreptul de acces</div>
+      <div class="right-desc">Poți descărca toate datele tale din <strong>Settings → Exportă datele</strong> (format JSON sau CSV).</div>
+    </div>
+    <div class="right-card">
+      <div class="right-title">Dreptul la ștergere</div>
+      <div class="right-desc">Poți șterge permanent contul și toate datele din <strong>Settings → Șterge contul</strong>.</div>
+    </div>
+    <div class="right-card">
+      <div class="right-title">Dreptul la rectificare</div>
+      <div class="right-desc">Poți modifica profilul și datele direct din aplicație oricând.</div>
+    </div>
+    <div class="right-card">
+      <div class="right-title">Dreptul la portabilitate</div>
+      <div class="right-desc">Export complet JSON sau CSV disponibil în secțiunea Settings.</div>
+    </div>
+    <div class="right-card">
+      <div class="right-title">Dreptul la opoziție</div>
+      <div class="right-desc">Poți solicita încetarea prelucrării prin contact la adresa de email de mai jos.</div>
+    </div>
+    <div class="right-card">
+      <div class="right-title">Dreptul de plângere</div>
+      <div class="right-desc">Poți depune plângere la <strong>ANSPDCP</strong> (Autoritatea Națională de Supraveghere) — <a href="https://www.dataprotection.ro" target="_blank">dataprotection.ro</a></div>
+    </div>
+  </div>
+
+  <h2>Securitatea datelor</h2>
+  <ul>
+    <li>Parolele sunt stocate criptat cu <strong>bcrypt</strong> — nu avem acces la parola ta</li>
+    <li>Comunicațiile sunt criptate prin <strong>HTTPS/TLS</strong></li>
+    <li>Autentificarea folosește token-uri <strong>JWT</strong> cu expirare de 60 minute</li>
+    <li>Baza de date e accesibilă doar prin conexiuni autentificate cu SSL</li>
+  </ul>
+
+  <h2>Cookie-uri</h2>
+  <p>Aplicația Noian Lab <strong>nu folosește cookie-uri de tracking sau publicitate</strong>. Singurele date stocate local sunt token-ul de autentificare JWT și preferințele UI, salvate în <code>localStorage</code> al browserului tău. Acestea sunt necesare pentru funcționarea aplicației și nu sunt trimise către terți.</p>
+
+  <h2>Modificări ale politicii</h2>
+  <p>Orice modificare semnificativă va fi comunicată prin email cu cel puțin 7 zile înainte de intrarea în vigoare. Data ultimei actualizări este afișată în antetul acestui document.</p>
+
+  <h2>Contact și exercitarea drepturilor</h2>
+  <p>Pentru orice solicitare privind datele tale personale: <a href="mailto:noianlab.contact@gmail.com">noianlab.contact@gmail.com</a></p>
+  <p>Răspundem în maximum <strong>30 de zile</strong> calendaristice, conform GDPR.</p>
+</div>
+
+<footer>
+  <span>© 2026 Noian Lab · Bazat pe inteligență artificială</span><br><br>
+  <a href="/landing">Acasă</a>
+  <a href="/terms">Termeni</a>
+  <a href="/privacy">Confidențialitate</a>
+  <a href="/">Aplicație</a>
+</footer>
+
+</body>
+</html>

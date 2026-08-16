@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panou Nutriționist · Noian Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#080808; --surf:#111; --surf2:#161616; --border:#1e1e1e;
+      --accent:#c4622d; --accent-d:rgba(196,98,45,0.15);
+      --text:#d4d0cb; --text2:#8e8880; --text3:#4a4a4a;
+      --green:#22c55e; --yellow:#eab308; --red:#ef4444; --radius:12px;
+    }
+    body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; min-height:100dvh; }
+
+    /* NAV */
+    nav { position:sticky; top:0; z-index:200; display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:58px; background:rgba(8,8,8,0.95); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); }
+    .nav-brand { display:flex; align-items:center; gap:10px; }
+    .nav-dot   { width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent); }
+    .nav-title { font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .nav-sub   { font-size:10px; color:var(--text3); letter-spacing:.05em; text-transform:uppercase; }
+    .btn { background:var(--surf); border:1px solid var(--border); border-radius:8px; color:var(--text2); cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; padding:7px 14px; transition:all .15s; white-space:nowrap; }
+    .btn:hover { border-color:var(--accent); color:var(--text); }
+    .btn-primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+    .btn-primary:hover { opacity:.88; }
+
+    /* LAYOUT */
+    #app { display:none; }
+    main { max-width:1100px; margin:0 auto; padding:28px 20px 80px; }
+
+    /* AUTH OVERLAY */
+    #overlay { position:fixed; inset:0; z-index:500; display:flex; align-items:center; justify-content:center; background:var(--bg); }
+    .overlay-card { background:var(--surf); border:1px solid rgba(196,98,45,.25); border-radius:16px; padding:40px 36px; max-width:420px; width:90%; }
+    .overlay-title { font-size:20px; font-weight:600; margin-bottom:6px; }
+    .overlay-sub { font-size:13px; color:var(--text2); margin-bottom:28px; line-height:1.6; }
+    .field { display:flex; flex-direction:column; gap:7px; margin-bottom:14px; }
+    .field label { font-size:12px; font-weight:500; color:var(--text2); }
+    .field input { background:var(--surf2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Inter',sans-serif; font-size:15px; padding:12px 14px; outline:none; width:100%; transition:border-color .2s; }
+    .field input:focus { border-color:var(--accent); }
+    .btn-full { width:100%; padding:13px; font-size:14px; font-weight:600; border-radius:8px; cursor:pointer; font-family:'Inter',sans-serif; border:none; background:var(--accent); color:#fff; transition:opacity .15s; margin-top:6px; }
+    .btn-full:hover { opacity:.88; }
+    .form-msg { font-size:12.5px; border-radius:8px; padding:10px 14px; margin-top:10px; display:none; line-height:1.5; }
+    .form-msg.error   { background:rgba(239,68,68,.07); border:1px solid rgba(239,68,68,.25); color:#ef4444; }
+    .form-msg.success { background:rgba(34,197,94,.07); border:1px solid rgba(34,197,94,.25); color:var(--green); }
+
+    /* STATS ROW */
+    .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:28px; }
+    @media(max-width:640px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+    .stat-card { background:var(--surf); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; }
+    .stat-label { font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--text2); margin-bottom:10px; }
+    .stat-val   { font-size:28px; font-weight:300; letter-spacing:-.03em; color:var(--text); line-height:1; }
+    .stat-val.accent { color:var(--accent); }
+    .stat-val.green  { color:var(--green);  }
+    .stat-val.yellow { color:var(--yellow); }
+
+    /* INVITE BANNER */
+    .invite-banner { background:rgba(196,98,45,.06); border:1px solid rgba(196,98,45,.2); border-radius:var(--radius); padding:18px 22px; margin-bottom:24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+    .invite-code { font-family:monospace; font-size:20px; font-weight:700; letter-spacing:.12em; color:var(--accent); background:var(--accent-d); border:1px solid rgba(196,98,45,.3); border-radius:8px; padding:8px 16px; flex-shrink:0; }
+    .invite-link-input { flex:1; min-width:200px; background:var(--surf2); border:1px solid var(--border); border-radius:8px; color:var(--text2); font-family:monospace; font-size:12px; padding:8px 12px; outline:none; }
+    .invite-actions { display:flex; gap:8px; flex-shrink:0; }
+
+    /* CLIENTS TABLE */
+    .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px; }
+    .section-title { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); }
+    .add-client-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .add-client-row input { background:var(--surf2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Inter',sans-serif; font-size:14px; padding:9px 14px; outline:none; width:260px; transition:border-color .2s; }
+    .add-client-row input:focus { border-color:var(--accent); }
+    .client-row { display:grid; grid-template-columns:1.8fr repeat(4,1fr) 80px; gap:8px; align-items:center; padding:14px 18px; background:var(--surf2); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:8px; cursor:pointer; transition:border-color .15s,transform .15s; }
+    .client-row:hover { border-color:rgba(196,98,45,.3); transform:translateX(2px); }
+    @media(max-width:700px){.client-row{grid-template-columns:1fr 1fr;gap:10px;}}
+    .client-email { font-size:13.5px; font-weight:600; color:var(--text); word-break:break-all; }
+    .client-meta  { font-size:11px; color:var(--text2); margin-top:2px; }
+    .col-label { font-size:9px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--text3); margin-bottom:4px; }
+    .col-val   { font-size:14px; font-weight:600; color:var(--text); }
+    .badge { display:inline-flex; align-items:center; font-size:10.5px; font-weight:600; padding:3px 9px; border-radius:999px; }
+    .badge-ok  { background:rgba(34,197,94,.08); color:var(--green); border:1px solid rgba(34,197,94,.2); }
+    .badge-warn{ background:rgba(234,179,8,.08); color:var(--yellow); border:1px solid rgba(234,179,8,.2); }
+    .badge-red { background:rgba(239,68,68,.08); color:var(--red);    border:1px solid rgba(239,68,68,.2); }
+
+    /* CLIENT DETAIL PANEL */
+    #detailPanel { display:none; position:fixed; top:0; right:0; width:min(420px,100vw); height:100vh; background:var(--surf); border-left:1px solid var(--border); overflow-y:auto; z-index:300; box-shadow:-8px 0 40px rgba(0,0,0,.5); padding:28px 24px; }
+    .detail-close { position:absolute; top:18px; right:20px; background:transparent; border:1px solid var(--border); border-radius:6px; color:var(--text2); cursor:pointer; font-size:18px; padding:4px 10px; }
+    .detail-email { font-size:16px; font-weight:700; color:var(--text); margin:28px 0 4px; word-break:break-all; }
+    .detail-section { font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin:22px 0 10px; }
+    .macro-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
+    .macro-box { background:var(--surf2); border:1px solid var(--border); border-radius:8px; padding:10px 8px; text-align:center; }
+    .macro-val { font-size:18px; font-weight:700; color:var(--text); line-height:1; }
+    .macro-lbl { font-size:9px; color:var(--text2); margin-top:3px; text-transform:uppercase; letter-spacing:.06em; }
+    .weight-chart-wrap { height:140px; position:relative; margin-bottom:16px; }
+    .day-log-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(30,30,30,.6); font-size:13px; }
+    .day-log-row:last-child { border-bottom:none; }
+    .rec-textarea { width:100%; background:var(--surf2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Inter',sans-serif; font-size:13px; padding:11px 13px; resize:none; outline:none; min-height:80px; margin-bottom:8px; transition:border-color .2s; }
+    .rec-textarea:focus { border-color:var(--accent); }
+    .rec-item { background:var(--surf2); border:1px solid var(--border); border-radius:8px; padding:10px 13px; margin-bottom:8px; font-size:13px; color:var(--text); line-height:1.6; }
+    .rec-date { font-size:10.5px; color:var(--text2); margin-top:4px; }
+
+    /* TRIAL BANNER */
+    .trial-banner { background:rgba(234,179,8,.06); border:1px solid rgba(234,179,8,.25); border-radius:var(--radius); padding:14px 20px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:13px; color:var(--yellow); flex-wrap:wrap; }
+
+    /* REGISTER SECTIONS */
+    .tabs { display:grid; grid-template-columns:1fr 1fr; gap:4px; background:var(--surf2); border:1px solid var(--border); border-radius:8px; padding:4px; margin-bottom:20px; }
+    .tab-btn { background:transparent; border:none; border-radius:6px; color:var(--text2); cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; padding:9px; transition:all .2s; }
+    .tab-btn.active { background:var(--accent); color:#fff; font-weight:600; }
+    .empty { text-align:center; padding:40px 20px; color:var(--text2); font-size:14px; line-height:1.7; }
+    .empty-icon { font-size:36px; margin-bottom:12px; opacity:.5; }
+
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.2); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:inline-block; vertical-align:middle; margin-right:8px; }
+
+    @media(max-width:640px){ #detailPanel{width:100vw;} }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ── NAV ────────────────────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-dot"></div>
+    <div>
+      <div class="nav-title">Noian Lab</div>
+      <div class="nav-sub">Panou Nutriționist</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn" id="btnInviteCopy" onclick="copyInviteLink()" style="display:none">🔗 Copiază link invitație</button>
+    <a href="/" class="btn">← App</a>
+    <button class="btn" onclick="logout()">Deconectare</button>
+  </div>
+</nav>
+
+<!-- ── AUTH OVERLAY ────────────────────────────────────────────────────────── -->
+<div id="overlay">
+  <div class="overlay-card">
+    <div class="overlay-title">Panou Nutriționist</div>
+    <p class="overlay-sub">Conectează-te cu contul tău Noian Lab. Dacă nu ești înregistrat ca nutriționist, completează datele de mai jos.</p>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="setAuthTab('login')">Autentificare</button>
+      <button class="tab-btn" onclick="setAuthTab('register')">Înregistrare</button>
+    </div>
+
+    <!-- LOGIN SECTION -->
+    <div id="loginSection">
+      <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="email@tău.ro" autocomplete="email"></div>
+      <div class="field"><label>Parolă</label><input type="password" id="loginPwd" placeholder="Parola" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn-full" onclick="doLogin()">Autentificare</button>
+      <div class="form-msg" id="loginMsg"></div>
+    </div>
+
+    <!-- REGISTER SECTION (nutriționist nou) -->
+    <div id="registerSection" style="display:none">
+      <div class="field"><label>Email</label><input type="email" id="regEmail" placeholder="email@tău.ro" autocomplete="email"></div>
+      <div class="field"><label>Parolă</label><input type="password" id="regPwd" placeholder="Minim 8 caractere"></div>
+      <div class="field"><label>Numele tău complet</label><input type="text" id="regName" placeholder="ex: Noian Cristian"></div>
+      <div class="field"><label>Numele cabinetului / companiei <span style="color:var(--text3)">(opțional)</span></label><input type="text" id="regBusiness" placeholder="ex: Cabinet Nutriție Cristian"></div>
+      <button class="btn-full" onclick="doRegister()">Creează cont nutriționist · 14 zile trial</button>
+      <div class="form-msg" id="regMsg"></div>
+      <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:12px">14 zile gratuit · Fără card de credit · Anulezi oricând</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ────────────────────────────────────────────────────────────── -->
+<div id="app">
+  <main>
+    <!-- Trial banner -->
+    <div class="trial-banner" id="trialBanner" style="display:none">
+      <span>⏳ Trial gratuit: <strong id="trialDays">—</strong> zile rămase</span>
+      <button class="btn btn-primary" onclick="startNutriCheckout()">Activează plan complet</button>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Clienți activi</div><div class="stat-val accent" id="sTotal">—</div></div>
+      <div class="stat-card"><div class="stat-label">Logat azi</div><div class="stat-val green" id="sLogged">—</div></div>
+      <div class="stat-card"><div class="stat-label">Alerte inactive</div><div class="stat-val yellow" id="sAlerts">—</div></div>
+      <div class="stat-card"><div class="stat-label">Streak mediu</div><div class="stat-val" id="sStreak">—</div></div>
+    </div>
+
+    <!-- Invite banner -->
+    <div class="invite-banner">
+      <div>
+        <div class="stat-label" style="margin-bottom:6px">Linkul tău personal de invitație</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.5">Trimite-l clienților tăi. La crearea contului, vor fi legați automat de profilul tău.</div>
+      </div>
+      <div class="invite-code" id="inviteCode">—</div>
+      <input type="text" class="invite-link-input" id="inviteLinkInput" readonly>
+      <div class="invite-actions">
+        <button class="btn btn-primary" onclick="copyInviteLink()">Copiază</button>
+      </div>
+    </div>
+
+    <!-- Clients section -->
+    <div style="background:var(--surf);border:1px solid var(--border);border-radius:var(--radius);padding:24px">
+      <div class="section-header">
+        <span class="section-title">Clienții Mei</span>
+        <div class="add-client-row">
+          <input type="email" id="addClientEmail" placeholder="email@client.ro" onkeydown="if(event.key==='Enter')addClient()">
+          <button class="btn btn-primary" onclick="addClient()">+ Adaugă</button>
+          <button class="btn" onclick="loadClients()">↻</button>
+        </div>
+      </div>
+
+      <div id="clientsBody">
+        <div class="empty"><div class="empty-icon">👥</div>Se încarcă...</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ── CLIENT DETAIL PANEL ─────────────────────────────────────────────────── -->
+<div id="detailPanel">
+  <button class="detail-close" onclick="closeDetail()">×</button>
+  <div class="detail-email" id="dEmail">—</div>
+  <div id="dContent"></div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+let _token = localStorage.getItem('coaching_token') || '';
+let _inviteLink = '';
+let _weightChart = null;
+let _currentTab = 'login';
+
+const api = async (path, opts={}) => {
+  const r = await fetch(path, {
+    headers: { 'Authorization': 'Bearer ' + _token, 'Content-Type': 'application/json', ...(opts.headers||{}) },
+    ...opts
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.detail?.message || d.detail || 'Eroare');
+  return d;
+};
+
+function msg(id, text, type='error') {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'form-msg ' + type;
+  el.style.display = 'block';
+}
+function toast(text, ok=true) {
+  const el = document.createElement('div');
+  el.textContent = text;
+  el.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;background:${ok?'#111':'#1a0000'};
+    border:1px solid ${ok?'rgba(34,197,94,.35)':'rgba(239,68,68,.35)'};border-radius:10px;
+    padding:12px 18px;font-size:13px;color:${ok?'#22c55e':'#ef4444'};box-shadow:0 8px 32px rgba(0,0,0,.5)`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ─── AUTH ────────────────────────────────────────────────────────────────────
+function setAuthTab(tab) {
+  _currentTab = tab;
+  document.getElementById('loginSection').style.display    = tab==='login'    ? 'block' : 'none';
+  document.getElementById('registerSection').style.display = tab==='register' ? 'block' : 'none';
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0) === (tab==='login')));
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pwd   = document.getElementById('loginPwd').value;
+  if (!email || !pwd) return msg('loginMsg', 'Completează emailul și parola.');
+  try {
+    const d = await api('/auth/login', { method:'POST', body: JSON.stringify({email, password: pwd}) });
+    _token = d.access_token;
+    localStorage.setItem('coaching_token', _token);
+    await initApp();
+  } catch(e) { msg('loginMsg', e.message); }
+}
+
+async function doRegister() {
+  const email    = document.getElementById('regEmail').value.trim();
+  const pwd      = document.getElementById('regPwd').value;
+  const name     = document.getElementById('regName').value.trim();
+  const business = document.getElementById('regBusiness').value.trim();
+  if (!email || !pwd || !name) return msg('regMsg', 'Completează câmpurile obligatorii.');
+  if (pwd.length < 8) return msg('regMsg', 'Parola trebuie să aibă minim 8 caractere.');
+  try {
+    // 1. Creăm contul standard
+    const d = await api('/auth/signup', { method:'POST', body: JSON.stringify({email, password: pwd}) });
+    _token = d.access_token;
+    localStorage.setItem('coaching_token', _token);
+    // 2. Înregistrăm ca nutriționist
+    await api('/nutritionist/register', {
+      method: 'POST',
+      body: JSON.stringify({ name, business_name: business })
+    });
+    msg('regMsg', '✓ Cont creat! Se încarcă panoul...', 'success');
+    setTimeout(initApp, 1200);
+  } catch(e) { msg('regMsg', e.message); }
+}
+
+function logout() {
+  localStorage.removeItem('coaching_token');
+  window.location.reload();
+}
+
+// ─── INIT APP ─────────────────────────────────────────────────────────────────
+async function initApp() {
+  if (!_token) return;
+  try {
+    const me = await api('/nutritionist/me');
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('app').style.display     = 'block';
+    document.getElementById('btnInviteCopy').style.display = 'flex';
+
+    // Invite link
+    _inviteLink = me.invite_link || '';
+    document.getElementById('inviteCode').textContent     = me.invite_code || '—';
+    document.getElementById('inviteLinkInput').value      = _inviteLink;
+
+    // Trial banner
+    if (me.plan_status === 'trial' && me.trial_days_left !== null) {
+      const b = document.getElementById('trialBanner');
+      b.style.display = 'flex';
+      document.getElementById('trialDays').textContent = me.trial_days_left;
+      if (me.trial_days_left <= 3) b.style.background = 'rgba(239,68,68,.07)';
+    }
+
+    loadClients();
+  } catch(e) {
+    // Nu e nutriționist → arată overlay cu tab-ul register
+    document.getElementById('overlay').style.display = 'flex';
+    setAuthTab('register');
+    if (e.message.includes('403')) {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('registerSection').style.display = 'block';
+      msg('regMsg', 'Contul tău nu e înregistrat ca nutriționist. Completează datele de mai jos.', 'success');
+    }
+  }
+}
+
+// ─── CLIENTS ──────────────────────────────────────────────────────────────────
+async function loadClients() {
+  document.getElementById('clientsBody').innerHTML =
+    '<div class="empty"><div class="empty-icon">⏳</div>Se încarcă clienții...</div>';
+  try {
+    const d = await api('/nutritionist/clients');
+    document.getElementById('sTotal').textContent   = d.total || 0;
+    document.getElementById('sAlerts').textContent  = d.alerts_count || 0;
+
+    const clients = d.clients || [];
+    const logged  = clients.filter(c => c.logged_today).length;
+    const avgStrk = clients.length
+      ? Math.round(clients.reduce((s,c) => s + (c.current_streak||0), 0) / clients.length)
+      : 0;
+    document.getElementById('sLogged').textContent  = logged;
+    document.getElementById('sStreak').textContent  = avgStrk + ' zile';
+
+    if (!clients.length) {
+      document.getElementById('clientsBody').innerHTML =
+        '<div class="empty"><div class="empty-icon">👥</div>Niciun client încă.<br>Trimite linkul tău de invitație sau adaugă manual un email.</div>';
+      return;
+    }
+
+    document.getElementById('clientsBody').innerHTML = clients.map(c => {
+      const statusBadge = c.logged_today
+        ? '<span class="badge badge-ok">✓ Logat azi</span>'
+        : c.current_streak === 0
+          ? '<span class="badge badge-red">Inactiv</span>'
+          : '<span class="badge badge-warn">Nu a logat azi</span>';
+      return `
+        <div class="client-row" onclick="openDetail('${c.email}')">
+          <div>
+            <div class="client-email">${c.email}</div>
+            <div class="client-meta">${c.goal ? goalLabel(c.goal) : '—'} · ${c.weight_kg ? c.weight_kg+'kg' : 'fără check-in'}</div>
+          </div>
+          <div><div class="col-label">Target</div><div class="col-val">${c.target_kcal || '—'} <span style="font-size:10px;color:var(--text2)">kcal</span></div></div>
+          <div><div class="col-label">Medie 7 zile</div><div class="col-val">${c.avg_kcal_7d || '—'} <span style="font-size:10px;color:var(--text2)">kcal</span></div></div>
+          <div><div class="col-label">Streak</div><div class="col-val">${c.current_streak} <span style="font-size:10px;color:var(--text2)">zile</span></div></div>
+          <div>${statusBadge}</div>
+          <div>
+            <button class="btn" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();removeClient('${c.email}')">✕</button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) { toast(e.message, false); }
+}
+
+async function addClient() {
+  const email = document.getElementById('addClientEmail').value.trim();
+  if (!email) return;
+  try {
+    await api('/nutritionist/client/add', { method:'POST', body: JSON.stringify({client_email: email}) });
+    document.getElementById('addClientEmail').value = '';
+    toast('✓ Client adăugat!');
+    loadClients();
+  } catch(e) { toast(e.message, false); }
+}
+
+async function removeClient(email) {
+  if (!confirm(`Elimini clientul ${email}?`)) return;
+  try {
+    await api(`/nutritionist/client/${encodeURIComponent(email)}`, { method:'DELETE' });
+    toast('Client eliminat.');
+    loadClients();
+    if (document.getElementById('dEmail').textContent === email) closeDetail();
+  } catch(e) { toast(e.message, false); }
+}
+
+// ─── CLIENT DETAIL ─────────────────────────────────────────────────────────────
+async function openDetail(email) {
+  const panel = document.getElementById('detailPanel');
+  panel.style.display = 'block';
+  document.getElementById('dEmail').textContent = email;
+  document.getElementById('dContent').innerHTML =
+    '<div style="text-align:center;padding:40px;color:var(--text2)"><div style="width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;display:inline-block"></div></div>';
+
+  try {
+    const d = await api(`/nutritionist/client/${encodeURIComponent(email)}`);
+    const recs = await api(`/nutritionist/recommend/${encodeURIComponent(email)}`);
+
+    document.getElementById('dContent').innerHTML = `
+      <!-- MACROS TARGET -->
+      <div class="detail-section">Macros Target</div>
+      <div class="macro-row">
+        <div class="macro-box"><div class="macro-val" style="color:var(--accent)">${d.target_kcal||'—'}</div><div class="macro-lbl">kcal/zi</div></div>
+        <div class="macro-box"><div class="macro-val" style="color:#e07b45">${d.protein_g||'—'}</div><div class="macro-lbl">Prot g</div></div>
+        <div class="macro-box"><div class="macro-val" style="color:#5b9cf6">${d.weight_kg||'—'}</div><div class="macro-lbl">kg actual</div></div>
+        <div class="macro-box"><div class="macro-val" style="color:var(--green)">${d.current_streak||0}</div><div class="macro-lbl">Streak</div></div>
+      </div>
+
+      <!-- GRAFIC GREUTATE -->
+      <div class="detail-section">Evoluție Greutate</div>
+      ${d.checkins?.length >= 2
+        ? `<div class="weight-chart-wrap"><canvas id="wChart"></canvas></div>`
+        : `<p style="font-size:12px;color:var(--text2);margin-bottom:16px">Insuficiente check-in-uri pentru grafic.</p>`}
+
+      <!-- FOOD LOGS 14 ZILE -->
+      <div class="detail-section">Food Log · Ultimele 14 Zile</div>
+      <div style="margin-bottom:20px">
+        ${d.food_14d?.length ? d.food_14d.slice(-7).reverse().map(r =>
+          `<div class="day-log-row"><span style="color:var(--text2)">${r.date}</span><span>${r.calories} kcal · ${r.protein_g}g prot</span></div>`
+        ).join('') : '<p style="font-size:12px;color:var(--text2)">Niciun log în ultimele 14 zile.</p>'}
+      </div>
+
+      <!-- RECOMANDĂRI -->
+      <div class="detail-section">Trimite Recomandare</div>
+      <textarea class="rec-textarea" id="recText" placeholder="Sfat nutrițional, ajustare plan, feedback..."></textarea>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:20px" onclick="sendRec('${email}')">Trimite recomandarea</button>
+
+      <div class="detail-section">Recomandări Anterioare</div>
+      ${(recs.recommendations||[]).length
+        ? recs.recommendations.slice(0,5).map(r =>
+          `<div class="rec-item">${r.message}<div class="rec-date">${(r.created_at||'').slice(0,16).replace('T',' ')}</div></div>`
+        ).join('')
+        : '<p style="font-size:12px;color:var(--text2)">Nicio recomandare trimisă încă.</p>'}
+    `;
+
+    // Randăm graficul greutate
+    if (d.checkins?.length >= 2) {
+      setTimeout(() => {
+        const ctx = document.getElementById('wChart')?.getContext('2d');
+        if (!ctx) return;
+        if (_weightChart) { _weightChart.destroy(); _weightChart = null; }
+        _weightChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: d.checkins.map(c => c.date.slice(5)),
+            datasets: [{
+              data:            d.checkins.map(c => c.weight_kg),
+              borderColor:     '#c4622d',
+              backgroundColor: 'rgba(196,98,45,.07)',
+              pointRadius:     3, borderWidth:2, tension:0.35, fill:true
+            }]
+          },
+          options: {
+            responsive:true, maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{
+              x:{ticks:{color:'#6b6560',font:{size:10}},grid:{color:'#1a1a1a'}},
+              y:{ticks:{color:'#6b6560',font:{size:10},callback:v=>v+'kg'},grid:{color:'#1a1a1a'}}
+            }
+          }
+        });
+      }, 100);
+    }
+
+  } catch(e) {
+    document.getElementById('dContent').innerHTML =
+      `<p style="color:#ef4444;padding:20px">${e.message}</p>`;
+  }
+}
+
+async function sendRec(clientEmail) {
+  const text = document.getElementById('recText')?.value.trim();
+  if (!text || text.length < 5) return toast('Mesajul e prea scurt.', false);
+  try {
+    await api(`/nutritionist/recommend/${encodeURIComponent(clientEmail)}`, {
+      method:'POST', body: JSON.stringify({message: text})
+    });
+    toast('✓ Recomandare trimisă! Clientul o va vedea în Settings.');
+    document.getElementById('recText').value = '';
+    openDetail(clientEmail); // re-încarcă
+  } catch(e) { toast(e.message, false); }
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').style.display = 'none';
+  if (_weightChart) { _weightChart.destroy(); _weightChart = null; }
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function goalLabel(g) {
+  return {cut_bland:'Tăiere blândă',cut:'Tăiere moderată',mentinere:'Menținere',
+          bulk_lean:'Lean Bulk',bulk:'Bulk moderat'}[g] || g;
+}
+
+function copyInviteLink() {
+  if (!_inviteLink) return;
+  navigator.clipboard.writeText(_inviteLink)
+    .then(() => toast('✓ Link copiat!'))
+    .catch(() => { document.getElementById('inviteLinkInput').select(); });
+}
+
+function contactForPayment() {
+  window.open('mailto:contact@noianlab.ro?subject=Activare Plan Nutriționist', '_blank');
+}
+
+// ─── BOOT ────────────────────────────────────────────────────────────────────
+if (_token) {
+  initApp();
+} else {
+  setAuthTab('login');
+}
+
+async function startNutriCheckout() {
+  const d = await api('/stripe/checkout-nutritionist', { method:'POST' });
+  if (d.checkout_url) window.location.href = d.checkout_url;
+}
+async function openNutriPortal() {
+  const d = await api('/stripe/portal-nutritionist', { method:'POST' });
+  if (d.portal_url) window.location.href = d.portal_url;
+}
+</script>
+</body>
+</html>

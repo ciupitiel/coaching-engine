@@ -1,0 +1,46 @@
+# =============================================================================
+#  .dockerignore — Fișiere excluse din Docker build context
+#  Fără acest fișier, Docker copiază TOT folderul în container,
+#  inclusiv venv (600MB+), .env cu parole, și fișiere SQLite vechi.
+# =============================================================================
+
+# Mediul virtual Python — pachetele se reinstalează în container din requirements.txt
+venv/
+.venv/
+env/
+
+# Variabile de mediu — NU intră niciodată în imagine (parolele rămân pe mașina ta)
+# Pe Render.com se configurează din dashboard, nu din fișier
+.env
+
+# Cache Python — generate automat, nu trebuie transportate
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Baze de date SQLite vechi — datele sunt acum pe Neon.tech
+*.db
+*.sqlite
+*.sqlite3
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# macOS
+.DS_Store
+
+# Fonturi — instalate via apt în Dockerfile (fonts-dejavu)
+# Dacă le ai local, nu e nevoie să le copiezi în container
+DejaVuSans.ttf
+DejaVuSans-Bold.ttf
+
+# Fișiere de test și temporare
+*.log
+*.tmp

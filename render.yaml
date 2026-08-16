@@ -1,0 +1,105 @@
+# =============================================================================
+#  render.yaml — Configurare Deploy Render.com
+#  Noian Cristian · Coaching Engine
+#  -----------------------------------------------------------------------------
+#  v1.1 FIX: APP_URL avea lipsă "sync: false" — comentariul ei era deplasat
+#             la finalul fișierului sub ADMIN_SECRET.
+#
+#  După primul deploy, completează valorile în:
+#  Render Dashboard → coaching-engine-api → Environment → Add Variable
+#
+#  Variabile obligatorii:
+#    DATABASE_URL  → URL-ul Neon.tech (postgresql://...)
+#    GROQ_API_KEY  → cheia de la console.groq.com (gsk_...)
+#    SECRET_KEY    → generată local cu: python3 -c "import secrets; print(secrets.token_hex(32))"
+#    RESEND_API_KEY → cheia de la resend.com (re_...)
+#    RESEND_FROM   → adresa de trimitere (onboarding@resend.dev sau noreply@domeniultau.ro)
+#    APP_URL       → URL-ul aplicației pe Render (https://coaching-engine.onrender.com)
+# =============================================================================
+
+services:
+  - type: web
+    name: coaching-engine-api
+
+    # env: docker → Render folosește Dockerfile-ul nostru
+    env: docker
+    dockerfilePath: ./Dockerfile
+
+    # Free tier: doarme după 15 min de inactivitate (~30s wake-up la primul request)
+    plan: free
+
+    # ── Variabile de mediu ────────────────────────────────────────────────────
+    # sync: false = completezi manual în dashboard după deploy
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+        # postgresql://neondb_owner:parola@ep-xxx.eu-central-1.aws.neon.tech/neondb?sslmode=require
+
+      - key: GROQ_API_KEY
+        sync: false
+        # gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxx (de la console.groq.com)
+
+      - key: SECRET_KEY
+        sync: false
+        # Generează: python3 -c "import secrets; print(secrets.token_hex(32))"
+        # IMPORTANT: folosește aceeași cheie local (.env) și pe Render
+        # Schimbarea ei invalidează toate sesiunile active ale userilor
+
+      - key: RESEND_API_KEY
+        sync: false
+        # re_xxxxxxxxxxxxxxxxxxxxxxxxxxxx (de la resend.com → API Keys)
+
+      - key: RESEND_FROM
+        sync: false
+        # Test fără domeniu propriu: onboarding@resend.dev
+        # Producție cu domeniu verificat: noreply@domeniultau.ro
+
+      - key: SENTRY_DSN
+        sync: false
+        # https://xxx@xxx.ingest.de.sentry.io/xxx (de la sentry.io)
+
+      - key: ADMIN_EMAIL
+        sync: false
+
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+        # Generează cu: python3 generate_vapid_keys.py
+
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+        # Generează cu: python3 generate_vapid_keys.py
+        # ATENȚIE: pe Render copiezi valoarea cu \n literal (cum o printează scriptul)
+        # push_engine.py normalizează automat \n → newline real
+
+      - key: VAPID_CLAIMS_SUB
+        sync: false
+        # mailto:contact@noianlab.ro
+
+      - key: ADMIN_SECRET
+        sync: false
+        # Secret random pentru endpoint-ul /push/trigger-daily (admin)
+        # Generează: python3 -c "import secrets; print(secrets.token_hex(32))"
+
+      - key: STRIPE_SECRET_KEY
+        sync: false
+        # sk_live_xxx sau sk_test_xxx (de la dashboard.stripe.com → API Keys)
+
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+        # pk_live_xxx sau pk_test_xxx (de la dashboard.stripe.com → API Keys)
+
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+        # whsec_xxx (de la dashboard.stripe.com → Developers → Webhooks → Signing secret)
+
+      - key: STRIPE_PRICE_ID
+        sync: false
+        # price_xxx (de la dashboard.stripe.com → Products → prețul subscripției)
+
+      - key: STRIPE_PORTAL_CONFIG_ID
+        sync: false
+        # bpc_xxx (opțional — de la dashboard.stripe.com → Billing → Customer portal)
+
+      - key: APP_URL
+        sync: false
+        # https://coaching-engine.onrender.com (URL-ul real al aplicației pe Render)

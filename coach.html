@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coach Dashboard · Noian Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #080808;
+      --surf:     #111111;
+      --surf-2:   #161616;
+      --border:   #1e1e1e;
+      --accent:   #c4622d;
+      --accent-d: rgba(196,98,45,0.15);
+      --text:     #d4d0cb;
+      --text-2:   #8e8880;
+      --text-3:   #4a4a4a;
+      --green:    #22c55e;
+      --yellow:   #eab308;
+      --red:      #ef4444;
+      --blue:     #00b4d8;
+      --radius:   12px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100dvh;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 58px;
+      background: rgba(8,8,8,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-left  { display: flex; align-items: center; gap: 12px; }
+    .nav-dot   { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+    .nav-title { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text); }
+    .nav-sub   { font-size: 10px; color: var(--text-3); letter-spacing: 0.04em; text-transform: uppercase; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .btn-icon  {
+      background: var(--surf); border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text-2); cursor: pointer; font-size: 13px; padding: 6px 12px;
+      transition: all .15s; white-space: nowrap;
+    }
+    .btn-icon:hover { border-color: var(--accent); color: var(--text); }
+
+    /* ── OVERLAY ─────────────────────────────────────────────────────── */
+    #overlay {
+      position: fixed; inset: 0; z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg);
+    }
+    .overlay-card {
+      background: var(--surf); border: 1px solid var(--border);
+      border-radius: 16px; padding: 40px 36px; max-width: 380px; width: 90%;
+      text-align: center;
+    }
+    .overlay-icon  { font-size: 36px; margin-bottom: 16px; }
+    .overlay-title { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+    .overlay-desc  { font-size: 13.5px; color: var(--text-2); line-height: 1.6; margin-bottom: 24px; }
+    .overlay-btn   {
+      display: inline-block; padding: 11px 28px;
+      background: var(--accent); color: #fff; border-radius: 8px;
+      font-size: 14px; font-weight: 600; text-decoration: none;
+      transition: opacity .15s;
+    }
+    .overlay-btn:hover { opacity: .85; }
+
+    /* ── LAYOUT ──────────────────────────────────────────────────────── */
+    #app { display: none; }
+
+    main { max-width: 1200px; margin: 0 auto; padding: 28px 20px 80px; }
+
+    /* ── SUMMARY STATS ───────────────────────────────────────────────── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 640px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+
+    .stat-card {
+      background: var(--surf); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px; position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: var(--accent);
+    }
+    .stat-value { font-size: 30px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+    .stat-label { font-size: 11px; font-weight: 500; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 4px; }
+
+    /* ── CONTROLS ────────────────────────────────────────────────────── */
+    .controls {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .search-wrap { flex: 1; min-width: 200px; position: relative; }
+    .search-wrap input {
+      width: 100%; background: var(--surf); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-family: inherit; font-size: 13.5px;
+      padding: 9px 14px 9px 36px; outline: none; transition: border-color .15s;
+    }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-wrap input::placeholder { color: var(--text-3); }
+    .search-icon {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: var(--text-3); font-size: 14px; pointer-events: none;
+    }
+
+    .filter-btn {
+      background: var(--surf); border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text-2); cursor: pointer; font-family: inherit; font-size: 12.5px;
+      font-weight: 500; padding: 8px 14px; transition: all .15s; white-space: nowrap;
+    }
+    .filter-btn:hover        { border-color: var(--accent); color: var(--text); }
+    .filter-btn.active       { background: var(--accent-d); border-color: var(--accent); color: var(--accent); }
+    .filter-btn.alert-filter { border-color: var(--red); color: var(--red); }
+    .filter-btn.alert-filter.active { background: rgba(239,68,68,.12); }
+
+    .count-label { font-size: 12px; color: var(--text-3); margin-left: 4px; }
+
+    /* ── CLIENT GRID ─────────────────────────────────────────────────── */
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 14px;
+    }
+
+    .client-card {
+      background: var(--surf); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px;
+      cursor: pointer; transition: all .18s; position: relative; overflow: hidden;
+    }
+    .client-card:hover { border-color: rgba(196,98,45,0.4); transform: translateY(-1px); }
+    .client-card.has-alert-stagnare { border-left: 3px solid var(--red); }
+    .client-card.has-alert-inactiv  { border-left: 3px solid var(--yellow); }
+
+    /* Card header */
+    .card-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 8px; margin-bottom: 14px;
+    }
+    .card-avatar {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: var(--accent-d); border: 1px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: var(--accent);
+    }
+    .card-id { flex: 1; min-width: 0; }
+    .card-email {
+      font-size: 13px; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+    .card-streak { text-align: right; flex-shrink: 0; }
+    .streak-val  { font-size: 18px; font-weight: 700; color: #fff; }
+    .streak-lbl  { font-size: 10px; color: var(--text-3); }
+
+    /* Badges */
+    .badge-row  { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+    .badge      {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 99px; border: 1px solid;
+    }
+    .badge-goal-cut        { color: #60a5fa; border-color: rgba(96,165,250,.3); background: rgba(96,165,250,.08); }
+    .badge-goal-cut_bland  { color: #93c5fd; border-color: rgba(147,197,253,.3); background: rgba(147,197,253,.08); }
+    .badge-goal-mentinere  { color: var(--text-2); border-color: var(--border); }
+    .badge-goal-bulk_lean  { color: #4ade80; border-color: rgba(74,222,128,.3); background: rgba(74,222,128,.08); }
+    .badge-goal-bulk       { color: #22c55e; border-color: rgba(34,197,94,.3); background: rgba(34,197,94,.1); }
+    .badge-alert-stagnare  { color: var(--red);    border-color: rgba(239,68,68,.3);  background: rgba(239,68,68,.1); }
+    .badge-alert-inactiv   { color: var(--yellow); border-color: rgba(234,179,8,.3);  background: rgba(234,179,8,.1); }
+    .badge-active          { color: var(--green);  border-color: rgba(34,197,94,.3);  background: rgba(34,197,94,.08); }
+    .badge-unverified      { color: var(--text-3); border-color: var(--border); }
+
+    /* Metrics row */
+    .metrics-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px; margin-bottom: 12px;
+    }
+    .metric { text-align: center; }
+    .metric-val { font-size: 14px; font-weight: 600; color: #fff; }
+    .metric-lbl { font-size: 10px; color: var(--text-3); margin-top: 1px; }
+
+    /* Compliance bar */
+    .compliance-wrap { display: flex; align-items: center; gap: 8px; }
+    .compliance-track {
+      flex: 1; height: 4px; border-radius: 2px;
+      background: var(--border); overflow: hidden;
+    }
+    .compliance-fill { height: 100%; border-radius: 2px; transition: width .4s; }
+    .compliance-pct  { font-size: 11px; font-weight: 600; width: 32px; text-align: right; }
+    .compliance-na   { font-size: 11px; color: var(--text-3); }
+
+    /* ── EMPTY / LOADING / ERROR ─────────────────────────────────────── */
+    .state-box {
+      grid-column: 1/-1; text-align: center; padding: 64px 20px;
+      color: var(--text-3); font-size: 14px;
+    }
+    .state-box .ico { font-size: 32px; margin-bottom: 12px; }
+    .spinner {
+      width: 28px; height: 28px; border: 2px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin .7s linear infinite; margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── MODAL ────────────────────────────────────────────────────────── */
+    #modal {
+      position: fixed; inset: 0; z-index: 400;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.75); padding: 16px;
+    }
+    #modal.open { display: flex; }
+
+    .modal-box {
+      background: var(--surf); border: 1px solid var(--border);
+      border-radius: 18px; width: 100%; max-width: 600px;
+      max-height: 90dvh; overflow-y: auto;
+      position: relative;
+    }
+    .modal-box::-webkit-scrollbar { width: 4px; }
+    .modal-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .modal-head {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--surf); border-bottom: 1px solid var(--border);
+      padding: 18px 20px; display: flex; align-items: center; gap: 12px;
+    }
+    .modal-email { flex: 1; font-size: 14px; font-weight: 600; color: #fff; word-break: break-all; }
+    .modal-close {
+      background: none; border: none; color: var(--text-3);
+      font-size: 20px; cursor: pointer; padding: 2px 6px;
+      border-radius: 6px; transition: all .15s;
+    }
+    .modal-close:hover { color: var(--text); background: var(--surf-2); }
+
+    .modal-body { padding: 20px; }
+
+    .modal-section { margin-bottom: 24px; }
+    .modal-section-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+    }
+
+    /* Modal stat grid */
+    .modal-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+      margin-bottom: 12px;
+    }
+    .modal-stat {
+      background: var(--surf-2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 14px; text-align: center;
+    }
+    .modal-stat-val { font-size: 18px; font-weight: 700; color: #fff; }
+    .modal-stat-lbl { font-size: 10px; color: var(--text-3); text-transform: uppercase; margin-top: 2px; letter-spacing: 0.04em; }
+
+    /* Weight sparkline */
+    #sparkline-svg { width: 100%; height: 80px; display: block; }
+
+    /* Macro bars in modal */
+    .macro-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .macro-bar-lbl { font-size: 12px; color: var(--text-2); width: 80px; flex-shrink: 0; }
+    .macro-bar-track {
+      flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+    }
+    .macro-bar-fill { height: 100%; border-radius: 3px; }
+    .macro-bar-val { font-size: 12px; color: var(--text-2); width: 60px; text-align: right; flex-shrink: 0; }
+
+    /* Last 7 days dots */
+    .dots-row { display: flex; gap: 6px; }
+    .dot-wrap  { text-align: center; flex: 1; }
+    .dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      margin: 0 auto 4px;
+      border: 1.5px solid var(--border);
+    }
+    .dot.logged { background: var(--accent); border-color: var(--accent); }
+    .dot.today  { border-color: #fff; }
+    .dot-lbl    { font-size: 10px; color: var(--text-3); }
+
+    /* Last checkins mini table */
+    .mini-table { width: 100%; font-size: 12.5px; border-collapse: collapse; }
+    .mini-table td { padding: 6px 0; border-bottom: 1px solid var(--border); color: var(--text-2); }
+    .mini-table td:last-child { text-align: right; color: var(--text); font-weight: 500; }
+    .mini-table tr:last-child td { border-bottom: none; }
+
+    /* Alert box in modal */
+    .alert-box {
+      border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+      font-size: 13px; line-height: 1.55; border: 1px solid;
+    }
+    .alert-box.stagnare { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.3); color: #fca5a5; }
+    .alert-box.inactiv  { background: rgba(234,179,8,.08); border-color: rgba(234,179,8,.3); color: #fde047; }
+
+    /* ── REFRESH TIMESTAMP ───────────────────────────────────────────── */
+    .refresh-hint { font-size: 11px; color: var(--text-3); padding: 16px 0 0; text-align: center; }
+  </style>
+</head>
+<body>
+
+<!-- ── OVERLAY (auth / forbidden / error) ──────────────────────────────── -->
+<div id="overlay">
+  <div class="overlay-card" id="overlay-content">
+    <div class="overlay-icon">🔒</div>
+    <div class="overlay-title">Se verifică accesul…</div>
+    <div class="overlay-desc">Un moment.</div>
+  </div>
+</div>
+
+<!-- ── APP (afișat doar pentru admin autentificat) ─────────────────────── -->
+<div id="app">
+
+  <nav>
+    <div class="nav-left">
+      <div class="nav-dot"></div>
+      <div>
+        <div class="nav-title">Coach Dashboard</div>
+        <div class="nav-sub">Noian Lab · Admin</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <button class="btn-icon" id="btn-refresh" title="Reîncarcă datele">⟳ Refresh</button>
+      <a class="btn-icon" href="/" title="Înapoi la aplicație">← App</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value" id="st-total">—</div>
+        <div class="stat-label">Clienți total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="st-logged" style="color:var(--green)">—</div>
+        <div class="stat-label">Activi azi</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="st-verified">—</div>
+        <div class="stat-label">Verificați</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="st-new" style="color:var(--accent)">—</div>
+        <div class="stat-label">Noi această săpt.</div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="search" id="search" placeholder="Caută după email…">
+      </div>
+      <button class="filter-btn active" data-filter="all">Toți</button>
+      <button class="filter-btn alert-filter" data-filter="alert">
+        ⚠ Alerte <span class="count-label" id="alert-count">0</span>
+      </button>
+      <button class="filter-btn" data-filter="active">Activi azi</button>
+      <button class="filter-btn" data-filter="nostats">Fără TDEE</button>
+    </div>
+
+    <!-- Client cards grid -->
+    <div id="grid">
+      <div class="state-box">
+        <div class="spinner"></div>
+        <div>Se încarcă clienții…</div>
+      </div>
+    </div>
+
+    <div class="refresh-hint" id="refresh-hint"></div>
+  </main>
+
+</div><!-- /#app -->
+
+<!-- ── CLIENT DETAIL MODAL ─────────────────────────────────────────────── -->
+<div id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-email" id="modal-email">—</div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <div class="state-box"><div class="spinner"></div><div>Se încarcă…</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════════════
+
+const S = {
+  token:   localStorage.getItem('coaching_token') || '',
+  clients: [],
+  filter:  'all',
+  query:   '',
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const $ = id => document.getElementById(id);
+
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function daysAgo(dateStr) {
+  if (!dateStr) return null;
+  const d = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+  if (d === 0) return 'azi';
+  if (d === 1) return 'ieri';
+  return `${d} zile`;
+}
+
+function fmtDate(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  API
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function api(path) {
+  const res = await fetch(path, {
+    headers: { 'Authorization': 'Bearer ' + S.token },
+  });
+  if (!res.ok) {
+    const err = new Error(await res.text().catch(() => res.statusText));
+    err.status = res.status;
+    throw err;
+  }
+  return res.json();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  OVERLAY
+// ═══════════════════════════════════════════════════════════════════════════
+
+function showOverlay(type, msg) {
+  const c = $('overlay-content');
+  const templates = {
+    login: {
+      icon: '🔑',
+      title: 'Autentifică-te mai întâi',
+      desc: 'Deschide aplicația principală, conectează-te, apoi revino la Coach Dashboard.',
+      btn: { href: '/', label: 'Mergi la aplicație' },
+    },
+    forbidden: {
+      icon: '🚫',
+      title: 'Acces restricționat',
+      desc: 'Dashboard-ul este disponibil doar pentru administratorul aplicației.',
+      btn: { href: '/', label: '← Înapoi la aplicație' },
+    },
+    error: {
+      icon: '⚠️',
+      title: 'Eroare la încărcare',
+      desc: msg || 'A apărut o eroare. Verifică consola și încearcă din nou.',
+      btn: { href: '/', label: '← Înapoi' },
+    },
+  };
+  const t = templates[type] || templates.error;
+  c.innerHTML = `
+    <div class="overlay-icon">${t.icon}</div>
+    <div class="overlay-title">${esc(t.title)}</div>
+    <div class="overlay-desc">${esc(t.desc)}</div>
+    ${t.btn ? `<a class="overlay-btn" href="${t.btn.href}">${esc(t.btn.label)}</a>` : ''}
+  `;
+  $('overlay').style.display = 'flex';
+  $('app').style.display = 'none';
+}
+
+function hideOverlay() {
+  $('overlay').style.display = 'none';
+  $('app').style.display = 'block';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  GOAL LABELS & COLORS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const GOAL_LABEL = {
+  cut_bland:  'Tăiere Blândă',
+  cut:        'Tăiere',
+  mentinere:  'Menținere',
+  bulk_lean:  'Lean Bulk',
+  bulk:       'Bulk',
+};
+
+function complianceColor(pct) {
+  if (pct == null) return 'var(--text-3)';
+  if (pct >= 85 && pct <= 115) return 'var(--green)';
+  if (pct >= 70  || pct <= 130) return 'var(--yellow)';
+  return 'var(--red)';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  RENDER STATS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function renderStats(s) {
+  $('st-total').textContent   = s.total;
+  $('st-logged').textContent  = s.logged_today;
+  $('st-verified').textContent = s.verified;
+  $('st-new').textContent     = s.new_this_week;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  RENDER CLIENTS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function applyFilters() {
+  let list = S.clients;
+
+  if (S.query) {
+    const q = S.query.toLowerCase();
+    list = list.filter(c => c.email.toLowerCase().includes(q));
+  }
+
+  if (S.filter === 'alert')   list = list.filter(c => c.alert);
+  if (S.filter === 'active')  list = list.filter(c => c.logged_today);
+  if (S.filter === 'nostats') list = list.filter(c => !c.target_kcal);
+
+  renderGrid(list);
+}
+
+function renderGrid(clients) {
+  if (!clients.length) {
+    $('grid').innerHTML = `
+      <div class="state-box">
+        <div class="ico">🔍</div>
+        <div>Niciun client corespunde filtrului.</div>
+      </div>`;
+    return;
+  }
+  $('grid').innerHTML = clients.map(renderCard).join('');
+  $('grid').querySelectorAll('.client-card').forEach(card => {
+    card.addEventListener('click', () => openModal(card.dataset.email));
+  });
+}
+
+function renderCard(c) {
+  const initials  = c.email.slice(0, 2).toUpperCase();
+  const goalClass = `badge-goal-${c.goal || 'mentinere'}`;
+  const goalLabel = GOAL_LABEL[c.goal] || c.goal || '—';
+  const alertBadge = c.alert
+    ? `<span class="badge badge-alert-${c.alert}">${c.alert}</span>`
+    : c.logged_today
+      ? '<span class="badge badge-active">Activ azi</span>'
+      : '';
+  const verifiedBadge = !c.is_verified
+    ? '<span class="badge badge-unverified">Neverificat</span>'
+    : '';
+
+  const lastCheckin = c.last_checkin ? daysAgo(c.last_checkin) : '—';
+  const lastLog     = c.last_food_date ? daysAgo(c.last_food_date) : '—';
+
+  // Compliance bar
+  let complianceHTML;
+  if (c.compliance_pct != null) {
+    const w = Math.min(c.compliance_pct, 100);
+    const col = complianceColor(c.compliance_pct);
+    complianceHTML = `
+      <div class="compliance-wrap" title="Media calorii 7 zile vs. target">
+        <div class="compliance-track">
+          <div class="compliance-fill" style="width:${w}%;background:${col}"></div>
+        </div>
+        <span class="compliance-pct" style="color:${col}">${c.compliance_pct}%</span>
+      </div>`;
+  } else {
+    complianceHTML = '<div class="compliance-na">Fără date nutriționale</div>';
+  }
+
+  return `
+    <div class="client-card ${c.alert ? 'has-alert-'+c.alert : ''}"
+         data-email="${esc(c.email)}">
+      <div class="card-head">
+        <div class="card-avatar">${esc(initials)}</div>
+        <div class="card-id">
+          <div class="card-email">${esc(c.email)}</div>
+          <div class="card-sub">
+            Check-in: ${lastCheckin} · Log: ${lastLog}
+          </div>
+        </div>
+        <div class="card-streak">
+          <div class="streak-val">${c.current_streak > 0 ? c.current_streak + '🔥' : '—'}</div>
+          <div class="streak-lbl">streak</div>
+        </div>
+      </div>
+
+      <div class="badge-row">
+        <span class="badge ${goalClass}">${esc(goalLabel)}</span>
+        ${alertBadge}
+        ${verifiedBadge}
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric">
+          <div class="metric-val">${c.last_weight != null ? c.last_weight + ' kg' : '—'}</div>
+          <div class="metric-lbl">Greutate</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">${c.target_kcal || '—'}</div>
+          <div class="metric-lbl">Target kcal</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">${c.checkin_count}</div>
+          <div class="metric-lbl">Check-in-uri</div>
+        </div>
+      </div>
+
+      ${complianceHTML}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  MODAL — DETAIL VIEW
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function openModal(email) {
+  $('modal-email').textContent = email;
+  $('modal-body').innerHTML = '<div class="state-box"><div class="spinner"></div><div>Se încarcă detaliile…</div></div>';
+  $('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  try {
+    const d = await api(`/coach/client/${encodeURIComponent(email)}`);
+    $('modal-body').innerHTML = buildModalHTML(d);
+  } catch (e) {
+    $('modal-body').innerHTML = `<div class="state-box"><div class="ico">⚠️</div><div>Eroare: ${esc(e.message)}</div></div>`;
+  }
+}
+
+function closeModal() {
+  $('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function buildModalHTML(d) {
+  const c   = d.card;
+  const str = d.streak || {};
+  const f14 = d.food_14d || {};
+  const ci  = d.checkins || [];
+
+  // ── Alert box ─────────────────────────────────────────────────────────
+  let alertHTML = '';
+  if (c.alert === 'stagnare') {
+    alertHTML = `
+      <div class="alert-box stagnare">
+        ⛔ <strong>Stagnare detectată</strong> — ultimele check-in-uri sunt în intervalul
+        ±${c.stagnation_variance ?? '?'} kg pe ${c.stagnation_span ?? '?'} zile.
+        Consideră ajustare calorică de ±150 kcal.
+      </div>`;
+  } else if (c.alert === 'inactiv') {
+    alertHTML = `
+      <div class="alert-box inactiv">
+        ⚠ <strong>Inactiv ${c.days_since_log} zile</strong> — nu a mai logat nicio masă.
+        Ultimul log: ${c.last_food_date || '—'}.
+      </div>`;
+  }
+
+  // ── Streak dots ───────────────────────────────────────────────────────
+  const days7 = str.last_7_days || [];
+  const dotsHTML = days7.map(day => `
+    <div class="dot-wrap">
+      <div class="dot ${day.logged ? 'logged' : ''} ${day.is_today ? 'today' : ''}"></div>
+      <div class="dot-lbl">${day.weekday}</div>
+    </div>`).join('');
+
+  // ── Weight sparkline SVG ──────────────────────────────────────────────
+  const sparkSVG = ci.length >= 2 ? buildSparkline(ci) : '<p style="color:var(--text-3);font-size:12px">Date insuficiente</p>';
+
+  // ── Macro bars ─────────────────────────────────────────────────────────
+  function macroBar(label, actual, target, unit) {
+    if (!target) return '';
+    const pct = Math.min(150, Math.round(actual / target * 100));
+    const w   = Math.min(pct, 100);
+    const col = complianceColor(pct);
+    return `
+      <div class="macro-bar-row">
+        <span class="macro-bar-lbl">${label}</span>
+        <div class="macro-bar-track">
+          <div class="macro-bar-fill" style="width:${w}%;background:${col}"></div>
+        </div>
+        <span class="macro-bar-val" style="color:${col}">
+          ${actual}/${target}${unit}
+        </span>
+      </div>`;
+  }
+
+  const avg = f14.avg_daily_kcal    != null ? f14 : null;
+  const ses = d.sessions && d.sessions[0] ? d.sessions[0] : null;
+
+  let macrosHTML = '<p style="color:var(--text-3);font-size:12px">Fără date nutriționale suficiente (min 3 zile).</p>';
+  if (avg && ses) {
+    macrosHTML = `
+      ${macroBar('Calorii', f14.avg_daily_kcal, ses.target_kcal, ' kcal')}
+      ${macroBar('Proteină', f14.avg_daily_protein_g, ses.protein_g, 'g')}
+      ${macroBar('Carbohidrați', f14.avg_daily_carbs_g, ses.carbs_g, 'g')}
+      ${macroBar('Grăsimi', f14.avg_daily_fat_g, ses.fat_g, 'g')}
+      <p style="font-size:11px;color:var(--text-3);margin-top:8px">
+        ${f14.days_with_logs || 0}/14 zile loggate · ${Math.round((f14.logging_consistency||0)*100)}% consistență
+      </p>`;
+  }
+
+  // ── Last 5 check-ins ──────────────────────────────────────────────────
+  const lastCi = [...ci].reverse().slice(0, 5);
+  const ciRows = lastCi.map(ci => `
+    <tr>
+      <td>${fmtDate(ci.date)}</td>
+      <td>${ci.weight_kg} kg</td>
+    </tr>`).join('');
+
+  // ── TDEE info ─────────────────────────────────────────────────────────
+  const tdeeHTML = ses ? `
+    <div class="modal-stats" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="modal-stat">
+        <div class="modal-stat-val">${ses.tdee || '—'}</div>
+        <div class="modal-stat-lbl">TDEE kcal</div>
+      </div>
+      <div class="modal-stat">
+        <div class="modal-stat-val">${ses.target_kcal || '—'}</div>
+        <div class="modal-stat-lbl">Target kcal</div>
+      </div>
+      <div class="modal-stat">
+        <div class="modal-stat-val">${GOAL_LABEL[c.goal] || c.goal || '—'}</div>
+        <div class="modal-stat-lbl">Obiectiv</div>
+      </div>
+    </div>` : '<p style="color:var(--text-3);font-size:12px">Fără calcul TDEE efectuat.</p>';
+
+  return `
+    ${alertHTML}
+
+    <div class="modal-section">
+      <div class="modal-section-title">Sumar</div>
+      <div class="modal-stats">
+        <div class="modal-stat">
+          <div class="modal-stat-val">${c.last_weight != null ? c.last_weight + ' kg' : '—'}</div>
+          <div class="modal-stat-lbl">Greutate curentă</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-val">${str.current_streak || 0} 🔥</div>
+          <div class="modal-stat-lbl">Streak curent</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-val">${str.longest_streak || 0}</div>
+          <div class="modal-stat-lbl">Record streak</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-val">${c.checkin_count}</div>
+          <div class="modal-stat-lbl">Check-in-uri</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-val">${c.total_food_logs}</div>
+          <div class="modal-stat-lbl">Food logs total</div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-val" style="color:${c.compliance_pct != null ? complianceColor(c.compliance_pct) : 'var(--text-3)'}">
+            ${c.compliance_pct != null ? c.compliance_pct + '%' : '—'}
+          </div>
+          <div class="modal-stat-lbl">Compliance 7 zile</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Activitate 7 zile</div>
+      <div class="dots-row">${dotsHTML || '<p style="color:var(--text-3);font-size:12px">Fără loguri recente.</p>'}</div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Progres greutate (ultimele ${ci.length} check-in-uri)</div>
+      ${sparkSVG}
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Calcul TDEE</div>
+      ${tdeeHTML}
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Aderență macros (medie 14 zile vs. target)</div>
+      ${macrosHTML}
+    </div>
+
+    ${ciRows ? `
+    <div class="modal-section">
+      <div class="modal-section-title">Ultimele check-in-uri greutate</div>
+      <table class="mini-table">
+        <tbody>${ciRows}</tbody>
+      </table>
+    </div>` : ''}
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  SPARKLINE SVG
+// ═══════════════════════════════════════════════════════════════════════════
+
+function buildSparkline(checkins) {
+  const W = 560, H = 80;
+  const ML = 40, MR = 10, MT = 8, MB = 18;
+  const pw = W - ML - MR, ph = H - MT - MB;
+  const n  = checkins.length;
+
+  const weights = checkins.map(c => parseFloat(c.weight_kg));
+  const dates   = checkins.map(c => c.date);
+  const wmin    = Math.min(...weights);
+  const wmax    = Math.max(...weights);
+  const wr      = Math.max(wmax - wmin, 0.5);
+
+  function gx(i) { return ML + (i / (n - 1)) * pw; }
+  function gy(w) { return MT + ph - ((w - wmin) / wr) * ph; }
+
+  // Line path
+  const pts = weights.map((w, i) => `${i === 0 ? 'M' : 'L'}${gx(i).toFixed(1)},${gy(w).toFixed(1)}`).join(' ');
+  // Area path
+  const area = `M${gx(0).toFixed(1)},${(MT+ph).toFixed(1)} ` + pts.substring(1) + ` L${gx(n-1).toFixed(1)},${(MT+ph).toFixed(1)} Z`;
+
+  // Y labels
+  const yLabels = [0, 0.5, 1].map(t => {
+    const val = wmin + t * wr;
+    const y   = gy(val);
+    return `<text x="${ML - 4}" y="${y + 4}" text-anchor="end" fill="#4a4a4a" font-size="9">${val.toFixed(1)}</text>`;
+  }).join('');
+
+  // X labels (max 5)
+  const xIdxs = [...new Set([0, Math.floor(n/4), Math.floor(n/2), Math.floor(3*n/4), n-1])];
+  const xLabels = xIdxs.map(i => {
+    const d = (dates[i] || '').slice(5).replace('-', '/');
+    return `<text x="${gx(i).toFixed(1)}" y="${H - 2}" text-anchor="middle" fill="#4a4a4a" font-size="9">${d}</text>`;
+  }).join('');
+
+  // Dots
+  const dots = weights.map((w, i) => `
+    <circle cx="${gx(i).toFixed(1)}" cy="${gy(w).toFixed(1)}" r="3" fill="#c4622d"/>
+    <circle cx="${gx(i).toFixed(1)}" cy="${gy(w).toFixed(1)}" r="1.5" fill="#fff"/>`
+  ).join('');
+
+  return `
+    <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:80px;display:block;overflow:visible">
+      <rect x="${ML}" y="${MT}" width="${pw}" height="${ph}" fill="#0d0d0d" rx="4"/>
+      <path d="${area}" fill="rgba(196,98,45,0.12)"/>
+      <path d="${pts}" fill="none" stroke="#c4622d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      ${yLabels}
+      ${xLabels}
+      ${dots}
+    </svg>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  LOAD & REFRESH
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function loadAll() {
+  $('btn-refresh').textContent = '⟳ …';
+  $('btn-refresh').disabled = true;
+
+  try {
+    const [summary, data] = await Promise.all([
+      api('/coach/summary'),
+      api('/coach/clients'),
+    ]);
+
+    renderStats(summary);
+
+    S.clients = data.clients || [];
+    const alertsCount = data.alerts_count || 0;
+    $('alert-count').textContent = alertsCount;
+
+    applyFilters();
+
+    const now = new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+    $('refresh-hint').textContent = `Ultima actualizare: ${now} · ${S.clients.length} clienți`;
+
+  } catch (e) {
+    if (e.status === 401) { showOverlay('login'); return; }
+    if (e.status === 403) { showOverlay('forbidden'); return; }
+    $('grid').innerHTML = `<div class="state-box"><div class="ico">⚠️</div><div>Eroare: ${esc(e.message)}</div></div>`;
+  } finally {
+    $('btn-refresh').textContent = '⟳ Refresh';
+    $('btn-refresh').disabled = false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  INIT & EVENT LISTENERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function init() {
+  if (!S.token) { showOverlay('login'); return; }
+
+  // Verificare rapidă: suntem admin?
+  try {
+    await api('/coach/summary');
+    hideOverlay();
+    loadAll();
+  } catch (e) {
+    if (e.status === 401) showOverlay('login');
+    else if (e.status === 403) showOverlay('forbidden');
+    else showOverlay('error', e.message);
+    return;
+  }
+}
+
+// Search
+$('search').addEventListener('input', e => {
+  S.query = e.target.value.trim();
+  applyFilters();
+});
+
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    S.filter = btn.dataset.filter;
+    applyFilters();
+  });
+});
+
+// Refresh
+$('btn-refresh').addEventListener('click', loadAll);
+
+// Modal close
+$('modal-close').addEventListener('click', closeModal);
+$('modal').addEventListener('click', e => { if (e.target === $('modal')) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Auto-refresh la 5 minute
+setInterval(loadAll, 5 * 60 * 1000);
+
+// Start
+init();
+</script>
+</body>
+</html>

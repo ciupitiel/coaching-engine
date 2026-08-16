@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noian Lab · Calculator TDEE & Coaching Nutrițional AI în Română</title>
+  <meta name="description" content="Calculator TDEE personalizat, food logger AI în română, plan alimentar 7 zile și chat coach. Creat de Noian Cristian, autorul cărților Mănâncă Uman și Depinde. Gratuit.">
+  <meta name="keywords" content="calculator TDEE, macros, food logger, coaching nutritional, plan alimentar, slabit, masa musculara, AI nutritie romana">
+  <meta name="author" content="Noian Cristian">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://noianlab.ro">
+
+  <!-- Open Graph (Facebook, Instagram, WhatsApp) -->
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="https://noianlab.ro">
+  <meta property="og:title"       content="Noian Lab · Coaching Nutrițional AI">
+  <meta property="og:description" content="Calculator TDEE, food logger vocal, plan AI 7 zile. Creat de Noian Cristian. Gratuit pentru funcții de bază.">
+  <meta property="og:image"       content="https://noianlab.ro/og-image.png">
+  <meta property="og:locale"      content="ro_RO">
+  <meta property="og:site_name"   content="Noian Lab">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="Noian Lab · Coaching Nutrițional AI">
+  <meta name="twitter:description" content="Calculator TDEE, food logger vocal, plan AI 7 zile. Gratuit.">
+  <meta name="twitter:image"       content="https://noianlab.ro/og-image.png">
+
+  <!-- Structured Data (Google) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Noian Lab",
+    "description": "Platformă de coaching nutrițional AI în limba română. Calculator TDEE, food logger, plan alimentar personalizat.",
+    "applicationCategory": "HealthApplication",
+    "operatingSystem": "Web, iOS, Android",
+    "author": {
+      "@type": "Person",
+      "name": "Noian Cristian"
+    },
+    "offers": [
+      {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "name": "Plan Gratuit"
+      },
+      {
+        "@type": "Offer",
+        "price": "4.99",
+        "priceCurrency": "EUR",
+        "name": "Premium"
+      }
+    ],
+    "inLanguage": "ro"
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080808;
+      --surf:      #111111;
+      --surf2:     #161616;
+      --border:    #1e1e1e;
+      --border-h:  #2e2e2e;
+      --accent:    #c4622d;
+      --accent-h:  #d4722d;
+      --accent-gl: rgba(196,98,45,0.12);
+      --text:      #d4d0cb;
+      --text-2:    #8e8880;
+      --text-3:    #4a4a4a;
+      --radius:    14px;
+      --ease:      cubic-bezier(0.4,0,0.2,1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 60px;
+      background: rgba(8,8,8,0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+    .nav-wordmark {
+      font-size: 14px; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      color: var(--text);
+    }
+    .nav-wordmark span { color: var(--accent); }
+
+    /* FIX: transition lipsea — hover era brusc */
+    .nav-cta {
+      display: inline-flex; align-items: center;
+      padding: 9px 20px;
+      background: var(--accent); color: #fff;
+      border-radius: 8px; font-size: 13px; font-weight: 600;
+      text-decoration: none; letter-spacing: 0.02em;
+      transition: background .18s var(--ease), opacity .18s var(--ease);
+    }
+    .nav-cta:hover { background: var(--accent-h); }
+
+    /* ── HERO ───────────────────────────────────────────────── */
+    .hero {
+      max-width: 680px; margin: 0 auto;
+      padding: 100px 24px 80px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 10px; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 28px;
+    }
+    .hero-eyebrow::before, .hero-eyebrow::after {
+      content: ''; width: 24px; height: 1px;
+      background: var(--accent); opacity: 0.5;
+    }
+    .hero-title {
+      font-size: clamp(36px, 7vw, 58px);
+      font-weight: 700; line-height: 1.1;
+      letter-spacing: -0.03em; color: #fff;
+      margin-bottom: 20px;
+    }
+    .hero-title em { font-style: normal; color: var(--accent); }
+    .hero-sub {
+      font-size: 17px; color: var(--text-2);
+      line-height: 1.7; margin-bottom: 40px;
+      max-width: 520px; margin-left: auto; margin-right: auto;
+    }
+    .hero-actions {
+      display: flex; align-items: center; justify-content: center;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 15px 32px;
+      background: var(--accent); color: #fff;
+      border-radius: var(--radius); font-size: 15px; font-weight: 600;
+      text-decoration: none; letter-spacing: 0.02em;
+      transition: background .18s var(--ease), box-shadow .18s var(--ease), transform .18s var(--ease);
+      box-shadow: 0 0 40px rgba(196,98,45,0.25);
+    }
+    .btn-primary:hover {
+      background: var(--accent-h);
+      box-shadow: 0 0 60px rgba(196,98,45,0.4);
+      transform: translateY(-1px);
+    }
+
+    /* FIX: hover agăța pe color dar nu pe background — adăugat background subtle */
+    .btn-secondary {
+      display: inline-flex; align-items: center;
+      padding: 15px 28px;
+      border: 1px solid var(--border); color: var(--text-2);
+      border-radius: var(--radius); font-size: 14px; font-weight: 500;
+      text-decoration: none;
+      transition: border-color .18s var(--ease), color .18s var(--ease), background .18s var(--ease);
+    }
+    .btn-secondary:hover {
+      border-color: rgba(196,98,45,0.35);
+      color: var(--text);
+      background: var(--accent-gl);
+    }
+
+    .hero-note {
+      margin-top: 20px; font-size: 12px; color: var(--text-3);
+      letter-spacing: 0.03em;
+    }
+
+    /* ── STATS BAR ──────────────────────────────────────────── */
+    .stats {
+      display: flex; justify-content: center;
+      padding: 32px 24px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .stats::-webkit-scrollbar { display: none; }
+    @media (max-width: 600px) {
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        overflow-x: visible;
+        padding: 0;
+      }
+      .stat {
+        padding: 28px 20px;
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        text-align: center;
+      }
+      .stat:nth-child(even) { border-right: none; }
+      .stat:nth-child(3), .stat:nth-child(4) { border-bottom: none; }
+      .stat-num { font-size: 24px; }
+    }
+
+    .stat {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0 36px; text-align: center;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .stat:last-child { border-right: none; }
+    .stat-num {
+      font-size: 28px; font-weight: 700; color: #fff;
+      letter-spacing: -0.03em; line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-num span { color: var(--accent); }
+    .stat-label {
+      font-size: 11px; color: var(--text-3);
+      letter-spacing: 0.05em; text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* ── FEATURES ───────────────────────────────────────────── */
+    .section { padding: 80px 24px; max-width: 960px; margin: 0 auto; }
+    .section-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: clamp(26px, 4vw, 36px); font-weight: 700;
+      letter-spacing: -0.02em; color: #fff;
+      margin-bottom: 48px; max-width: 480px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .feat-card {
+      background: var(--surf); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px;
+      transition: border-color .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease);
+    }
+    .feat-card:hover {
+      border-color: rgba(196,98,45,0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+    }
+    .feat-icon {
+      font-size: 22px; margin-bottom: 16px;
+      display: block;
+    }
+    .feat-title {
+      font-size: 15px; font-weight: 600; color: #fff;
+      margin-bottom: 8px; letter-spacing: -0.01em;
+    }
+    .feat-desc {
+      font-size: 13.5px; color: var(--text-2); line-height: 1.65;
+    }
+
+    /* ── HOW IT WORKS ───────────────────────────────────────── */
+    .how-section {
+      padding: 80px 24px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--surf) 0%, var(--bg) 100%);
+    }
+    .how-inner { max-width: 860px; margin: 0 auto; }
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0;
+      margin-top: 48px;
+    }
+    .how-step {
+      padding: 32px 28px;
+      border-right: 1px solid var(--border);
+    }
+    .how-step:last-child { border-right: none; }
+    .how-num {
+      font-size: 48px; font-weight: 700; color: var(--border);
+      line-height: 1; margin-bottom: 16px; letter-spacing: -0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+    .how-step-title {
+      font-size: 16px; font-weight: 600; color: #fff;
+      margin-bottom: 10px; letter-spacing: -0.01em;
+    }
+    .how-step-desc { font-size: 13.5px; color: var(--text-2); line-height: 1.65; }
+
+    /* ── AI CHAT HIGHLIGHT ──────────────────────────────────── */
+    .ai-section {
+      padding: 80px 24px;
+      max-width: 960px; margin: 0 auto;
+    }
+    .ai-card {
+      background: var(--surf);
+      border: 1px solid rgba(196,98,45,0.2);
+      border-radius: var(--radius);
+      padding: 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .ai-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .ai-title {
+      font-size: 26px; font-weight: 700; color: #fff;
+      letter-spacing: -0.02em; line-height: 1.25;
+      margin-bottom: 16px;
+    }
+    .ai-desc { font-size: 14px; color: var(--text-2); line-height: 1.7; }
+    .ai-chat-mock {
+      background: var(--surf2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+    }
+    .msg { margin-bottom: 12px; display: flex; flex-direction: column; }
+    .msg:last-child { margin-bottom: 0; }
+    .msg-user { align-items: flex-end; }
+    .msg-ai   { align-items: flex-start; }
+    .msg-bubble {
+      max-width: 85%; padding: 10px 14px;
+      border-radius: 12px; font-size: 13px; line-height: 1.5;
+    }
+    .msg-user .msg-bubble {
+      background: var(--accent); color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .msg-ai .msg-bubble {
+      background: var(--surf); border: 1px solid var(--border);
+      color: var(--text-2);
+      border-bottom-left-radius: 4px;
+    }
+    .msg-who {
+      font-size: 10px; color: var(--text-3); margin-bottom: 4px;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+
+    /* ── PRICING ────────────────────────────────────────────── */
+    .pricing-section {
+      padding: 80px 24px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .pricing-inner {
+      max-width: 720px; margin: 0 auto; text-align: center;
+    }
+    .pricing-inner .section-title {
+      margin-bottom: 12px; max-width: none;
+    }
+    .pricing-sub {
+      font-size: 15px; color: var(--text-2); margin-bottom: 48px;
+    }
+    .pricing-grid {
+      display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    }
+    .plan-card {
+      background: var(--surf); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 36px 32px;
+      flex: 1; min-width: 260px; max-width: 320px;
+      text-align: left;
+    }
+    .plan-card.featured {
+      border: 2px solid var(--accent);
+      position: relative; overflow: hidden;
+    }
+    .plan-card.featured::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-h));
+    }
+    .plan-tag {
+      font-size: 12px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .plan-tag.free  { color: var(--text-3); }
+    .plan-tag.paid  { color: var(--accent); }
+    .plan-popular {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      background: var(--accent); color: #fff;
+      border-radius: 999px; padding: 3px 10px;
+    }
+    .plan-price {
+      font-size: 40px; font-weight: 700; color: #fff;
+      letter-spacing: -0.04em; line-height: 1;
+    }
+    .plan-period {
+      font-size: 13px; color: var(--text-3);
+      margin-bottom: 28px; margin-top: 4px;
+    }
+    .plan-features {
+      border-top: 1px solid var(--border); padding-top: 20px;
+      font-size: 13.5px; color: var(--text-2); line-height: 2;
+    }
+    .plan-card.featured .plan-features {
+      border-color: rgba(196,98,45,0.2);
+    }
+    .plan-btn {
+      display: block; text-align: center; padding: 13px;
+      border-radius: 8px; font-size: 14px; font-weight: 600;
+      text-decoration: none; margin-top: 28px;
+      transition: all .18s var(--ease);
+    }
+    .plan-btn.free-btn {
+      background: var(--surf2); border: 1px solid var(--border);
+      color: var(--text-2);
+    }
+    .plan-btn.free-btn:hover {
+      border-color: rgba(196,98,45,0.35); color: var(--text);
+    }
+    .plan-btn.paid-btn {
+      background: var(--accent); color: #fff;
+      box-shadow: 0 8px 24px rgba(196,98,45,0.3);
+    }
+    .plan-btn.paid-btn:hover {
+      background: var(--accent-h);
+      box-shadow: 0 8px 32px rgba(196,98,45,0.45);
+    }
+    .pricing-note {
+      font-size: 12px; color: var(--text-3); margin-top: 24px;
+    }
+
+    /* ── CTA FINAL ──────────────────────────────────────────── */
+    .cta-section {
+      padding: 100px 24px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    .cta-title {
+      font-size: clamp(28px, 5vw, 44px); font-weight: 700;
+      color: #fff; letter-spacing: -0.03em;
+      margin-bottom: 16px; line-height: 1.15;
+    }
+    .cta-sub {
+      font-size: 15px; color: var(--text-2);
+      margin-bottom: 40px;
+    }
+    .cta-btn {
+      font-size: 16px; padding: 17px 40px; display: inline-flex;
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-brand { font-size: 12px; color: var(--text-3); letter-spacing: 0.04em; }
+    .footer-brand strong { color: var(--text-2); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a {
+      font-size: 12px; color: var(--text-3); text-decoration: none;
+      transition: color .15s;
+    }
+    .footer-links a:hover { color: var(--text-2); }
+
+    /* ── MOBILE ─────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .stat  { padding: 0 20px; }
+      .how-step { border-right: none; border-bottom: 1px solid var(--border); }
+      .how-step:last-child { border-bottom: none; }
+      .ai-card { grid-template-columns: 1fr; gap: 32px; padding: 32px 24px; }
+      .hero { padding: 72px 20px 60px; }
+    }
+
+    /* ── REDUCED MOTION ─────────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; }
+    }
+
+@media (max-width: 640px) {
+      .about-creator-grid {
+        grid-template-columns: 1fr !important;
+        gap: 40px !important;
+      }
+      .about-creator-grid > div:first-child {
+        /* Avatar NC: mai compact pe mobil */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* ── Mobile: elimină liniile gri între secțiuni ── */
+    @media (max-width: 640px) {
+        .stats { display:grid !important; grid-template-columns:1fr 1fr; overflow-x:visible; padding:24px 16px; gap:10px; border-bottom:none; }
+        .stat { padding:20px 14px; border:1px solid rgba(255,255,255,0.07) !important; border-right:1px solid rgba(255,255,255,0.07) !important; border-bottom:1px solid rgba(255,255,255,0.07) !important; border-radius:12px; background:var(--surf); text-align:center; }
+        .stat:nth-child(even) { border-right:1px solid rgba(255,255,255,0.07) !important; }
+        .stat:nth-child(3), .stat:nth-child(4) { border-bottom:1px solid rgba(255,255,255,0.07) !important; }
+        .stat-num { font-size:24px; }
+        .how-section { border-top:none; border-bottom:none; }
+        .pricing-section { border-top:none; border-bottom:none; }
+        .cta-section { border-top:none; }
+        .how-step { border-right:none; border-bottom:1px solid rgba(255,255,255,0.05); padding:28px 20px; }
+        .how-step:last-child { border-bottom:none; }
+        .section { padding:56px 20px; }
+        .how-section { padding:56px 20px; }
+        .pricing-section { padding:56px 20px; }
+        .cta-section { padding:68px 20px; }
+        .features-grid { grid-template-columns:1fr; gap:10px; }
+        .ai-card { grid-template-columns:1fr; gap:24px; padding:28px 20px; }
+        .pricing-grid { flex-direction:column; align-items:stretch; }
+        .plan-card { min-width:unset; max-width:none; }
+        footer { border-top:1px solid rgba(255,255,255,0.06); padding:24px 20px; }
+    }
+
+
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="/landing">
+    <div class="nav-dot"></div>
+    <span class="nav-wordmark">Noian <span>Lab</span></span>
+  </a>
+  <a class="nav-cta" href="/">Încearcă gratuit</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">Coaching nutrițional AI</p>
+  <h1 class="hero-title">
+    Mănâncă precis.<br><em>Progresează real.</em>
+  </h1>
+  <p class="hero-sub">
+    Calculator TDEE personalizat, food logger cu AI, plan alimentar săptămânal
+    și chat coach adaptat obiectivului tău. Totul gratuit, totul în română.
+  </p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="/">
+      Încearcă gratuit
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
+    <!-- FIX: /#calcForm nu exista în app (forma are id="coachForm" și e
+         ascunsă sub auth overlay). Redirecționăm direct la "/" -->
+    <a class="btn-secondary" href="/">Vezi calculatorul</a>
+  </div>
+  <p class="hero-note">Zero card bancar · Zero abonament · Cont în 30 de secunde</p>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num">100<span>%</span></div>
+    <div class="stat-label">Gratuit pentru funcții de bază</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num"><span>&lt;</span>30s</div>
+    <div class="stat-label">Timp creare cont</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">41</div>
+    <div class="stat-label">Alimente românești în baza RAG</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num"><span>~</span>4s</div>
+    <div class="stat-label">Food log vocal end-to-end</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section">
+  <p class="section-label">Ce primești</p>
+  <h2 class="section-title">Tot ce ai nevoie pentru a progresa constant.</h2>
+  <div class="features-grid">
+    <div class="feat-card">
+      <span class="feat-icon">🧮</span>
+      <div class="feat-title">Calculator TDEE precis</div>
+      <div class="feat-desc">Formula Mifflin-St Jeor sau Katch-McArdle (dacă știi BF%). Macros calculate din greutatea ta reală, nu din medie.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🎙️</span>
+      <div class="feat-title">Food logger text și voce</div>
+      <div class="feat-desc">Spui "o șaorma cu cartofi" și AI-ul estimează imediat caloriile, proteinele, carbohidrații și grăsimile. Porții românești calibrate.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🍽️</span>
+      <div class="feat-title">Plan alimentar de 7 zile</div>
+      <div class="feat-desc">Generat de AI cu alimente din supermarketul românesc. Calibrat la caloriile tale, precizie ±30 kcal față de target zilnic.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">💬</span>
+      <div class="feat-title">Chat coach AI</div>
+      <div class="feat-desc">Cunoaște progresul tău, TDEE-ul și macros. Răspunde direct, fără fraze goale. Ton empatic, științific sau militar, tu alegi.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">📈</span>
+      <div class="feat-title">Tracking progres &amp; analytics</div>
+      <div class="feat-desc">Grafic greutate, medii săptămânale, compliance macro, detecție stagnare. Datele tale vizualizate clar, fără clutter.</div>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🔥</span>
+      <div class="feat-title">Streak &amp; engine adaptiv</div>
+      <div class="feat-desc">Motivație prin consecvență zilnică. Motorul adaptiv analizează progresul real și generează narativa AI personalizată.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<div class="how-section">
+  <div class="how-inner">
+    <p class="section-label">Cum funcționează</p>
+    <h2 class="section-title">De la zero la progres real în 3 minute.</h2>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num">01</div>
+        <div class="how-step-title">Calculezi o dată</div>
+        <div class="how-step-desc">Introduci greutatea, înălțimea, vârsta și obiectivul. Primești TDEE, caloriile și macros zilnice personalizate de AI.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">02</div>
+        <div class="how-step-title">Loghezi zilnic</div>
+        <div class="how-step-desc">Scrii sau spui ce ai mâncat. AI-ul estimează macros instantaneu. Check-in de greutate o dată pe săptămână.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">03</div>
+        <div class="how-step-title">Progresezi consistent</div>
+        <div class="how-step-desc">Aplicația urmărește trendurile, detectează stagnarea și îți oferă ajustări concrete prin chat coach sau analiză adaptivă.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALE -->
+<section class="section" style="padding-bottom:80px">
+  <p class="section-label">Ce spun utilizatorii</p>
+  <h2 class="section-title">Rezultate reale. Cifre reale.</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+
+    <div style="background:var(--surf);border:1px solid var(--border);border-radius:var(--radius);
+                padding:28px;display:flex;flex-direction:column;gap:16px;
+                transition:border-color .25s var(--ease),transform .25s var(--ease);"
+         onmouseover="this.style.borderColor='rgba(196,98,45,0.3)';this.style.transform='translateY(-2px)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.transform='none'">
+      <div style="color:#f59e0b;font-size:14px;letter-spacing:2px">★★★★★</div>
+      <p style="font-size:14px;color:var(--text-2);line-height:1.75;flex:1">
+        „Am calculat TDEE-ul, am urmat macros 6 săptămâni. Minus 4 kg, fără să-mi fie foame.
+        Loggerul vocal e ce m-a convins, vorbești și gata, totul e logat:)"
+      </p>
+      <div style="display:flex;align-items:center;gap:12px;padding-top:16px;
+                  border-top:1px solid var(--border)">
+        <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;
+                    background:linear-gradient(135deg,#c4622d,rgba(196,98,45,0.4));
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:13px;font-weight:700;color:#fff">AI</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">Alexandru I.</div>
+          <div style="font-size:11px;color:var(--text-3)">Slăbire · Cluj-Napoca</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--surf);border:1px solid var(--border);border-radius:var(--radius);
+                padding:28px;display:flex;flex-direction:column;gap:16px;
+                transition:border-color .25s var(--ease),transform .25s var(--ease);"
+         onmouseover="this.style.borderColor='rgba(196,98,45,0.3)';this.style.transform='translateY(-2px)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.transform='none'">
+      <div style="color:#f59e0b;font-size:14px;letter-spacing:2px">★★★★★</div>
+      <p style="font-size:14px;color:var(--text-2);line-height:1.75;flex:1">
+        „Motorul adaptiv mi a ajustat caloriile după 3 săptămâni când am stagnat.
+        Diferența față de alte aplicații: asta înțelege că corpul nu urmează formula."
+      </p>
+      <div style="display:flex;align-items:center;gap:12px;padding-top:16px;
+                  border-top:1px solid var(--border)">
+        <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;
+                    background:linear-gradient(135deg,#5b9cf6,rgba(91,156,246,0.4));
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:13px;font-weight:700;color:#fff">MV</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">Maria V.</div>
+          <div style="font-size:11px;color:var(--text-3)">Recompoziție · București</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--surf);border:1px solid var(--border);border-radius:var(--radius);
+                padding:28px;display:flex;flex-direction:column;gap:16px;
+                transition:border-color .25s var(--ease),transform .25s var(--ease);"
+         onmouseover="this.style.borderColor='rgba(196,98,45,0.3)';this.style.transform='translateY(-2px)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.transform='none'">
+      <div style="color:#f59e0b;font-size:14px;letter-spacing:2px">★★★★★</div>
+      <p style="font-size:14px;color:var(--text-2);line-height:1.75;flex:1">
+        „Barcode scanner + plan AI au schimbat tot. Scanez ce cumpăr din Lidl
+        și săptămâna viitoare am deja meniul construit din aceleași produse. Zero efort."
+      </p>
+      <div style="display:flex;align-items:center;gap:12px;padding-top:16px;
+                  border-top:1px solid var(--border)">
+        <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;
+                    background:linear-gradient(135deg,#4ade80,rgba(74,222,128,0.4));
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:13px;font-weight:700;color:#fff">RP</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">Radu P.</div>
+          <div style="font-size:11px;color:var(--text-3)">Masă musculară · Timișoara</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- RESURSE GRATUITE -->
+<section style="padding:80px 24px;border-top:1px solid var(--border)">
+  <div style="max-width:860px;margin:0 auto">
+
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:52px">
+      <p style="font-size:10px;font-weight:700;letter-spacing:2.5px;
+                text-transform:uppercase;color:var(--accent);margin-bottom:14px">
+        100% gratuit · fără email · fără card
+      </p>
+      <h2 style="font-size:clamp(26px,4vw,36px);font-weight:700;color:#fff;
+                 letter-spacing:-0.02em;line-height:1.2;margin-bottom:16px">
+        Materialele mele. Ale tale acum.
+      </h2>
+      <p style="font-size:16px;color:var(--text-2);max-width:480px;
+                margin:0 auto;line-height:1.7">
+        Două cărți scrise din experiență reală, nu din teorie.
+        Le ofer gratuit pentru că informația bună nu ar trebui să coste.
+      </p>
+    </div>
+
+    <!-- Cards cărți -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+                gap:16px;margin-bottom:40px">
+
+      <!-- Carte 1 -->
+      <div style="background:var(--surf);border:1px solid var(--border);
+                  border-radius:var(--radius);padding:32px;
+                  transition:border-color .25s var(--ease),transform .25s var(--ease);"
+           onmouseover="this.style.borderColor='rgba(196,98,45,0.35)';this.style.transform='translateY(-2px)'"
+           onmouseout="this.style.borderColor='var(--border)';this.style.transform='none'">
+        <div style="font-size:36px;margin-bottom:20px">📖</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;
+                    text-transform:uppercase;color:var(--accent);margin-bottom:10px">
+          Cartea I
+        </div>
+        <h3 style="font-size:20px;font-weight:700;color:#fff;
+                   letter-spacing:-0.02em;margin-bottom:12px">
+          Mănâncă Uman
+        </h3>
+        <p style="font-size:13.5px;color:var(--text-2);line-height:1.75">
+          Nutriție fără obsesii. Cum să mănânci precis, nu perfect,
+          și de ce disciplina sustenabilă bate orice dietă restrictivă.
+        </p>
+      </div>
+
+      <!-- Carte 2 -->
+      <div style="background:var(--surf);border:1px solid var(--border);
+                  border-radius:var(--radius);padding:32px;
+                  transition:border-color .25s var(--ease),transform .25s var(--ease);"
+           onmouseover="this.style.borderColor='rgba(196,98,45,0.35)';this.style.transform='translateY(-2px)'"
+           onmouseout="this.style.borderColor='var(--border)';this.style.transform='none'">
+        <div style="font-size:36px;margin-bottom:20px">📖</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;
+                    text-transform:uppercase;color:var(--accent);margin-bottom:10px">
+          Cartea II
+        </div>
+        <h3 style="font-size:20px;font-weight:700;color:#fff;
+                   letter-spacing:-0.02em;margin-bottom:12px">
+          Depinde.
+        </h3>
+        <p style="font-size:13.5px;color:var(--text-2);line-height:1.75">
+          Contextul contează mai mult decât regula. O carte despre
+          decizii inteligente când viața nu e un mediu controlat.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- CTA central -->
+    <div style="text-align:center">
+      <a href="https://drive.google.com/drive/folders/1jwrqDSywdHqF9A_vWGRcYFIZWqjpoNuF?usp=share_link"
+         target="_blank"
+         rel="noopener noreferrer"
+         style="display:inline-flex;align-items:center;gap:10px;
+                padding:16px 36px;
+                background:linear-gradient(135deg,var(--accent),#d4722d);
+                color:#fff;border-radius:var(--radius);
+                font-size:15px;font-weight:600;text-decoration:none;
+                letter-spacing:0.02em;
+                box-shadow:0 0 40px rgba(196,98,45,0.3);
+                transition:all .2s var(--ease);"
+         onmouseover="this.style.boxShadow='0 0 60px rgba(196,98,45,0.5)';this.style.transform='translateY(-1px)'"
+         onmouseout="this.style.boxShadow='0 0 40px rgba(196,98,45,0.3)';this.style.transform='none'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10,9 9,9 8,9"/>
+        </svg>
+        Citește ambele cărți gratuit
+      </a>
+      <p style="font-size:12px;color:var(--text-3);margin-top:14px;letter-spacing:0.03em">
+        Google Drive · citire directă · fără download obligatoriu
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- DESPRE CREATOR -->
+<section style="padding:80px 24px;border-top:1px solid var(--border)">
+  <div class="about-creator-grid" style="max-width:860px;margin:0 auto;
+              display:grid;grid-template-columns:1fr 1.6fr;gap:64px;align-items:center">
+
+    <!-- Avatar / Brand mark -->
+    <div style="text-align:center">
+      <div style="width:120px;height:120px;border-radius:50%;margin:0 auto 20px;
+                  background:linear-gradient(135deg,var(--accent),rgba(196,98,45,0.4));
+                  display:flex;align-items:center;justify-content:center;
+                  font-size:42px;font-weight:700;color:#fff;
+                  box-shadow:0 0 0 8px rgba(196,98,45,0.1),
+                             0 0 0 16px rgba(196,98,45,0.05)">
+        NC
+      </div>
+      <div style="font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.02em">
+        Noian Cristian
+      </div>
+      <div style="font-size:13px;color:var(--text-3);margin-top:6px">
+        Autor · Creator · Builder
+      </div>
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap">
+        <span style="background:var(--surf2);border:1px solid var(--border);
+               border-radius:999px;padding:4px 12px;font-size:11px;color:var(--text-2)">
+          📖 Mănâncă Uman
+        </span>
+        <span style="background:var(--surf2);border:1px solid var(--border);
+               border-radius:999px;padding:4px 12px;font-size:11px;color:var(--text-2)">
+          📖 Depinde.
+        </span>
+      </div>
+    </div>
+
+    <!-- Text -->
+    <div>
+      <p style="font-size:10px;font-weight:700;letter-spacing:2.5px;
+                text-transform:uppercase;color:var(--accent);margin-bottom:16px">
+        De ce există Noian Lab
+      </p>
+      <h2 style="font-size:clamp(22px,3.5vw,30px);font-weight:700;color:#fff;
+                 letter-spacing:-0.02em;line-height:1.25;margin-bottom:18px">
+        Am scris două cărți despre nutriție.<br>
+        Aplicația e ce rămâne după ce le citești.
+      </h2>
+      <p style="font-size:15px;color:var(--text-2);line-height:1.8;margin-bottom:16px">
+        <em style="color:var(--text);font-style:normal;font-weight:500">Mănâncă Uman</em>
+        și <em style="color:var(--text);font-style:normal;font-weight:500">Depinde.</em>
+        au un singur mesaj: mănâncă precis, nu perfect. Fără obsesii,
+        fără tabele de 40 de coloane, fără vinovăție.
+      </p>
+      <p style="font-size:15px;color:var(--text-2);line-height:1.8;margin-bottom:24px">
+        Noian Lab e instrumentul care face exact asta: calculează pentru tine,
+        loghează cu vocea ta, îți arată trendul real și îți ajustează planul
+        când corpul se adaptează.
+      </p>
+      <a href="/" style="
+          display:inline-flex;align-items:center;gap:8px;
+          padding:13px 26px;background:var(--accent);color:#fff;
+          border-radius:var(--radius);font-size:14px;font-weight:600;
+          text-decoration:none;letter-spacing:0.02em;
+          transition:all .18s var(--ease);
+          box-shadow:0 0 32px rgba(196,98,45,0.25);"
+         onmouseover="this.style.background='var(--accent-h)';this.style.boxShadow='0 0 48px rgba(196,98,45,0.4)'"
+         onmouseout="this.style.background='var(--accent)';this.style.boxShadow='0 0 32px rgba(196,98,45,0.25)'">
+        Încearcă Noian Lab gratuit
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section">
+  <div class="pricing-inner">
+    <p class="section-label" style="text-align:center">Prețuri transparente</p>
+    <h2 class="section-title">Simplu. Fără surprize.</h2>
+    <p class="pricing-sub">Funcțiile de bază sunt gratuite pentru totdeauna.</p>
+
+    <div class="pricing-grid">
+
+      <!-- FREE -->
+      <div class="plan-card">
+        <div class="plan-tag free">Gratuit</div>
+        <div class="plan-price">0€</div>
+        <div class="plan-period">pentru totdeauna</div>
+        <div class="plan-features">
+          ✓ Calculator TDEE &amp; macros<br>
+          ✓ Food Logger (text + barcode)<br>
+          ✓ Check-in greutate &amp; grafic<br>
+          ✓ Chat AI Coach (25 msg/zi)<br>
+          ✓ Streak &amp; analytics săptămânale
+        </div>
+        <!-- FIX: href direct, fără JS redundant -->
+        <a class="plan-btn free-btn" href="/">Creează cont gratuit</a>
+      </div>
+
+      <!-- PREMIUM -->
+      <div class="plan-card featured">
+        <div class="plan-tag paid">
+          ✦ Premium
+          <span class="plan-popular">POPULAR</span>
+        </div>
+        <div class="plan-price">4.99€</div>
+        <div class="plan-period">/lună · anulezi oricând</div>
+        <div class="plan-features">
+          Totul din planul gratuit, plus:<br>
+          ✦ Voice Logger (Whisper AI, &lt;4s)<br>
+          ✦ Plan alimentar 7 zile AI<br>
+          ✦ Rapoarte PDF săptămânale<br>
+          ✦ Analytics &amp; trend 4 săptămâni<br>
+          ✦ Motor adaptiv AI narativ
+        </div>
+        <!-- FIX: onclick + href redundant înlocuit cu href simplu.
+             index.html preia ?upgrade=1 și declanșează Stripe checkout. -->
+        <a class="plan-btn paid-btn" href="/?upgrade=1">✦ Activează Premium</a>
+      </div>
+
+    </div>
+
+    <p class="pricing-note">
+      Plată securizată prin Stripe · Factură emisă automat · Anulezi din setări în 2 click-uri
+    </p>
+  </div>
+</section>
+
+<!-- AI CHAT HIGHLIGHT -->
+<section class="ai-section">
+  <div class="ai-card">
+    <div>
+      <p class="ai-label">Chat Coach AI</p>
+      <h3 class="ai-title">Un coach care îți cunoaște datele reale.</h3>
+      <p class="ai-desc">
+        Nu răspunde generic. Știe că ai slăbit 2.3 kg în 3 săptămâni,
+        că TDEE-ul tău e 2400 kcal și că săptămâna trecută ai mâncat
+        în medie cu 180 kcal sub target. Îți spune concret ce urmează.
+      </p>
+    </div>
+    <div class="ai-chat-mock">
+      <div class="msg msg-user">
+        <div class="msg-who">Tu</div>
+        <div class="msg-bubble">Stagnez de 2 săptămâni la 78 kg. Ce fac?</div>
+      </div>
+      <div class="msg msg-ai">
+        <div class="msg-who">Coach AI</div>
+        <div class="msg-bubble">
+          Ultimele 3 check-in-uri sunt între 77.8 și 78.2 kg, stagnare clară.
+          La deficitul tău actual de 400 kcal/zi ar trebui să scazi 0.4 kg/săpt.,
+          deci ceva nu se adună. Loghează 3 zile complet și vedem unde e discrepanța.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+  <h2 class="cta-title">Începe azi.<br>Gratuit, pentru totdeauna.</h2>
+  <p class="cta-sub">Fără card bancar. Fără abonament. Cont creat în 30 de secunde.</p>
+  <a class="btn-primary cta-btn" href="/">
+    Creează cont gratuit
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2.5"
+         stroke-linecap="round" stroke-linejoin="round"
+         style="margin-left:10px">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  </a>
+</section>
+
+<footer>
+  <div class="footer-brand">
+    <strong>Noian Cristian</strong> · Bazat pe inteligență artificială
+    · <span id="yr"></span>
+  </div>
+  <div class="footer-links">
+    <a href="/privacy">Confidențialitate</a>
+    <a href="/terms">Termeni</a>
+    <a href="/">Aplicație</a>
+  </div>
+</footer>
+<script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -1,0 +1,1000 @@
+
+
+============================================================
+📂 FIȘIER: ./gdpr.js
+============================================================
+
+(function () {
+  'use strict';
+
+  var KEY = 'gdpr_v1';
+
+  // ── Verificare rapidă — zero overhead dacă a acceptat deja ──────────────────
+  try {
+    if (localStorage.getItem(KEY)) return;
+  } catch (e) {
+    return; // localStorage blocat (modul incognito strict) → nu afișăm nimic
+  }
+
+  // ── CSS injectat în <head> ──────────────────────────────────────────────────
+  var css = document.createElement('style');
+  css.textContent = [
+    // Container fix bottom — invizibil și în afara viewport-ului până la trigger
+    '#gdpr{',
+      'position:fixed;bottom:0;left:0;right:0;z-index:99998;',
+      'padding:0 12px 12px;',
+      'pointer-events:none;',
+      'transform:translateY(110%);',
+      'transition:transform .42s cubic-bezier(.4,0,.2,1);',
+    '}',
+
+    // Vizibil — slide-up
+    '#gdpr.gdpr-on{',
+      'transform:translateY(0);',
+      'pointer-events:auto;',
+    '}',
+
+    // Card interior
+    '#gdpr-card{',
+      'background:#161616;',
+      'border:1px solid rgba(255,255,255,0.07);',
+      'border-top:1px solid rgba(196,98,45,0.25);',
+      'border-radius:14px;',
+      'padding:18px 20px 18px 22px;',
+      'max-width:720px;',
+      'margin:0 auto;',
+      'box-shadow:0 -8px 48px rgba(0,0,0,0.55),0 0 0 1px rgba(196,98,45,0.08);',
+      'display:flex;align-items:center;gap:20px;',
+      'backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);',
+    '}',
+
+    // Indicator accent stânga
+    '#gdpr-card::before{',
+      'content:"";flex-shrink:0;',
+      'width:3px;height:36px;border-radius:99px;',
+      'background:linear-gradient(180deg,#c4622d,rgba(196,98,45,0.3));',
+    '}',
+
+    // Zona text
+    '#gdpr-body{flex:1;min-width:0;}',
+
+    '#gdpr-label{',
+      'font:700 10px/1 Inter,system-ui,sans-serif;',
+      'letter-spacing:2px;text-transform:uppercase;',
+      'color:#c4622d;margin:0 0 7px;',
+    '}',
+
+    '#gdpr-text{',
+      'font:400 13px/1.65 Inter,system-ui,sans-serif;',
+      'color:#7a7672;margin:0;',
+    '}',
+
+    '#gdpr-text a{',
+      'color:#c4622d;text-decoration:none;border-bottom:1px solid rgba(196,98,45,0.3);',
+      'transition:border-color .15s;',
+    '}',
+    '#gdpr-text a:hover{border-bottom-color:#c4622d;}',
+
+    // Butoane
+    '#gdpr-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0;align-items:center;}',
+
+    '#gdpr-btn{',
+      'background:#c4622d;color:#fff;border:none;border-radius:8px;',
+      'padding:10px 24px;white-space:nowrap;',
+      'font:600 13px/1 Inter,system-ui,sans-serif;',
+      'letter-spacing:.02em;cursor:pointer;',
+      'transition:opacity .15s,transform .15s;',
+    '}',
+    '#gdpr-btn:hover{opacity:.88;transform:translateY(-1px);}',
+    '#gdpr-btn:active{opacity:1;transform:translateY(0);}',
+
+    '#gdpr-link{',
+      'font:400 11.5px/1 Inter,system-ui,sans-serif;',
+      'color:#3e3e3e;text-decoration:none;',
+      'transition:color .15s;white-space:nowrap;',
+    '}',
+    '#gdpr-link:hover{color:#7a7672;}',
+
+    // Mobile: stacked layout
+    '@media(max-width:600px){',
+      '#gdpr-card{flex-wrap:wrap;gap:14px;}',
+      '#gdpr-card::before{display:none;}',
+      '#gdpr-actions{flex-direction:row;width:100%;justify-content:flex-end;}',
+    '}',
+  ].join('');
+  document.head.appendChild(css);
+
+  // ── HTML Banner ─────────────────────────────────────────────────────────────
+  var banner = document.createElement('div');
+  banner.id = 'gdpr';
+  banner.setAttribute('role', 'dialog');
+  banner.setAttribute('aria-modal', 'false');
+  banner.setAttribute('aria-label', 'Notificare privind confidențialitatea datelor');
+  banner.innerHTML = [
+    '<div id="gdpr-card">',
+      '<div id="gdpr-body">',
+        '<p id="gdpr-label">Confidențialitate &amp; Date</p>',
+        '<p id="gdpr-text">',
+          'Această aplicație salvează local tokenul de autentificare și preferințele UI ',
+          'strict pentru funcționarea ei. ',
+          '<strong style="color:#a09890;font-weight:600">',
+            'Zero cookies de tracking, zero publicitate, zero vânzare de date.',
+          '</strong>',
+          ' <a href="/privacy" target="_blank" rel="noopener">',
+            'Politică de confidențialitate →',
+          '</a>',
+        '</p>',
+      '</div>',
+      '<div id="gdpr-actions">',
+        '<button id="gdpr-btn" type="button">Am înțeles</button>',
+        '<a href="/privacy" target="_blank" rel="noopener" id="gdpr-link">Citește detalii</a>',
+      '</div>',
+    '</div>',
+  ].join('');
+
+  document.body.appendChild(banner);
+
+  // ── Slide-up după 600ms — pagina se încarcă complet, nu blocăm nimic ────────
+  var timer = setTimeout(function () {
+    banner.classList.add('gdpr-on');
+  }, 600);
+
+  // ── Dismiss — salvează consimțământul cu timestamp ──────────────────────────
+  function dismiss() {
+    clearTimeout(timer);
+
+    // Salvăm în localStorage cu metadate complete
+    try {
+      localStorage.setItem(KEY, JSON.stringify({
+        accepted:   true,
+        timestamp:  new Date().toISOString(),
+        version:    '1.0',
+        ua_hash:    (navigator.userAgent || '').slice(0, 40),
+      }));
+    } catch (e) { /* localStorage blocat — continuăm oricum */ }
+
+    // Slide-down + remove din DOM
+    banner.style.transition = 'transform .32s cubic-bezier(.4,0,.2,1), opacity .32s';
+    banner.classList.remove('gdpr-on');
+    banner.style.opacity = '0';
+    setTimeout(function () {
+      try { banner.parentNode && banner.parentNode.removeChild(banner); } catch (e) {}
+    }, 360);
+  }
+
+  document.getElementById('gdpr-btn').addEventListener('click', dismiss);
+
+  // Dismiss și la apăsare Escape (accesibilitate)
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && banner.classList.contains('gdpr-on')) dismiss();
+  }, { once: true });
+
+})();
+
+============================================================
+📂 FIȘIER: ./auth.py
+============================================================
+
+# =============================================================================
+#  auth.py — Modul de Securitate
+#  Noian Cristian · Coaching Engine
+#  -----------------------------------------------------------------------------
+#  v1.1 FIX: SECRET_KEY mutat din hardcoded → variabilă de mediu
+#  Adaugă în .env:   SECRET_KEY=o-cheie-lunga-si-aleatorie-de-minim-32-caractere
+#  Pe Render.com:    Environment Variables → SECRET_KEY → valoarea ta
+# =============================================================================
+
+import os
+from datetime import datetime, timedelta
+from typing import Optional
+
+from fastapi import HTTPException, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from passlib.context import CryptContext
+import jwt
+
+# ── Configurare ───────────────────────────────────────────────────────────────
+# FIX: SECRET_KEY citit din mediu, nu hardcodat în sursă.
+# Fallback la vechea valoare pentru backward compatibility (sesiunile existente rămân valide).
+# ⚠️  ACȚIUNE NECESARĂ: adaugă în .env → SECRET_KEY=cheie-secreta-foarte-sigura
+# ⚠️  Pe Render: Environment Variables → Add → SECRET_KEY → valoarea ta
+SECRET_KEY = os.environ.get("SECRET_KEY", "cheie-secreta-foarte-sigura")
+
+ALGORITHM            = "HS256"
+TOKEN_EXPIRE_MINUTES = 60 * 24 * 7   # 7 zile — UX decent fără risc adițional
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+_bearer     = HTTPBearer(auto_error=False)
+
+
+# ── Parole ────────────────────────────────────────────────────────────────────
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+# ── JWT ───────────────────────────────────────────────────────────────────────
+def create_access_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire    = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+# ── Dependențe FastAPI ────────────────────────────────────────────────────────
+def get_current_user_email(
+    creds: Optional[HTTPAuthorizationCredentials] = Security(_bearer)
+) -> Optional[str]:
+    """
+    Extrage emailul din Bearer token.
+    Returnează None dacă token-ul lipsește sau e invalid.
+    Folosit la /calculate (autentificare opțională — nu blochează calculul).
+    """
+    if creds is None:
+        return None
+    try:
+        payload = jwt.decode(creds.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload.get("sub")
+    except jwt.PyJWTError:
+        return None
+
+
+def require_user_email(
+    creds: Optional[HTTPAuthorizationCredentials] = Security(_bearer)
+) -> str:
+    """
+    Ca get_current_user_email, dar aruncă 401 dacă token-ul lipsește/e invalid.
+    Folosit la rutele care cer autentificare obligatorie (/auth/my-sessions).
+    """
+    email = get_current_user_email(creds)
+    if not email:
+        raise HTTPException(
+            status_code=401,
+            detail="Sesiune expirată sau token invalid. Te rog reconectează-te."
+        )
+    return email
+
+============================================================
+📂 FIȘIER: ./database_settings_e5.py
+============================================================
+
+# =============================================================================
+#  database_settings_e5.py — Etapa 5: Schema Migration (additivă)
+#  Noian Cristian · Bazat pe inteligență artificială
+#  -----------------------------------------------------------------------------
+#  Modul NOU. Adaugă în main.py exact 2 linii:
+#
+#  ① La importuri (lângă `from database_settings import ...`):
+#     from database_settings_e5 import init_db_settings_e5
+#
+#  ② În lifespan(), IMEDIAT DUPĂ `await init_db_settings()`:
+#     await init_db_settings_e5()
+#
+#  Total modificări în main.py: 2 linii. Zero înlocuiri.
+#  -----------------------------------------------------------------------------
+#  Ce face:
+#    Adaugă 3 coloane noi la tabelul existent user_settings:
+#      · accent_color  — culoarea de accent aleasă de user (preset key)
+#      · density       — densitatea interfeței (compact/comfortable/spacious)
+#      · theme_sync    — sincronizare cu OS (manual/auto)
+#
+#  De ce ALTER TABLE și nu recreare:
+#    · Tabelul există deja în producție cu date reale.
+#    · `ADD COLUMN IF NOT EXISTS` este idempotent în PostgreSQL 9.6+.
+#    · Valorile DEFAULT se aplică automat la rândurile existente.
+#    · Zero downtime, zero pierdere de date.
+#
+#  Coloanele noi sunt preluate automat de get_settings() și save_settings()
+#  din database_settings.py (versiunea actualizată E5).
+# =============================================================================
+
+from database import get_pool
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  MIGRATION STATEMENTS — ordonate și idempotente
+# ─────────────────────────────────────────────────────────────────────────────
+
+_E5_MIGRATION_STATEMENTS = [
+    # accent_color: cheia presetului ales (amber/cyan/emerald/violet/white)
+    # 'amber' = culoarea originală (#c4622d) — zero impact vizual la upgrade
+    """
+    ALTER TABLE user_settings
+    ADD COLUMN IF NOT EXISTS accent_color TEXT NOT NULL DEFAULT 'amber'
+    """,
+
+    # density: controlul densității vizuale
+    # 'comfortable' = layout-ul actual — zero schimbare vizuală la upgrade
+    """
+    ALTER TABLE user_settings
+    ADD COLUMN IF NOT EXISTS density TEXT NOT NULL DEFAULT 'comfortable'
+    """,
+
+    # theme_sync: comportamentul față de preferința SO
+    # 'manual' = user controlează manual — comportament existent
+    """
+    ALTER TABLE user_settings
+    ADD COLUMN IF NOT EXISTS theme_sync TEXT NOT NULL DEFAULT 'manual'
+    """,
+]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  FUNCȚIE DE MIGRARE — apelată din lifespan()
+# ─────────────────────────────────────────────────────────────────────────────
+
+async def init_db_settings_e5() -> None:
+    """
+    Adaugă coloanele Etapa 5 la tabelul user_settings dacă nu există.
+    Complet idempotent — sigur de rulat la fiecare startup.
+
+    Apelat din lifespan() în main.py, DUPĂ await init_db_settings():
+        await init_db_settings_e5()
+
+    Nu recreează tabelul. Nu șterge date. Nu blochează DB-ul.
+    ALTER TABLE pe PostgreSQL este instant pentru ADD COLUMN cu DEFAULT literal.
+    """
+    async with get_pool().acquire() as conn:
+        for stmt in _E5_MIGRATION_STATEMENTS:
+            await conn.execute(stmt)
+
+    print("✅  user_settings E5: accent_color, density, theme_sync — migrare OK")
+
+============================================================
+📂 FIȘIER: ./database_onboarding.py
+============================================================
+
+"""
+database_onboarding.py
+Tracked trimitere emailuri de onboarding (ziua 1, 3, 7 după signup).
+
+Tabel: onboarding_emails
+  user_email TEXT
+  day        INTEGER   (1, 3 sau 7)
+  sent_at    TEXT
+  UNIQUE(user_email, day) → imposibil de trimis de două ori același email
+"""
+
+import datetime
+from database import get_pool
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  SCHEMA
+# ─────────────────────────────────────────────────────────────────────────────
+
+async def init_db_onboarding() -> None:
+    """Creează tabelul onboarding_emails. Idempotent."""
+    async with get_pool().acquire() as conn:
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS onboarding_emails (
+                id         SERIAL  PRIMARY KEY,
+                user_email TEXT    NOT NULL,
+                day        INTEGER NOT NULL,
+                sent_at    TEXT    NOT NULL,
+                UNIQUE(user_email, day)
+            )
+        """)
+        await conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_onboarding_email ON onboarding_emails(user_email)"
+        )
+    print("✅  onboarding_emails: OK")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  QUERIES
+# ─────────────────────────────────────────────────────────────────────────────
+
+async def get_users_for_onboarding_day(day: int) -> list[str]:
+    """
+    Returnează emailurile userilor care:
+      • s-au înregistrat exact acum `day` zile (comparație pe dată, nu timestamp)
+      • NU au primit deja emailul pentru ziua `day`
+
+    Rulează zilnic din scheduler. Fereastra de ±0 zile e suficientă
+    dacă scheduler-ul pornește consistent (APScheduler cu cron).
+    """
+    target_date = (
+        datetime.date.today() - datetime.timedelta(days=day)
+    ).isoformat()   # "YYYY-MM-DD"
+
+    async with get_pool().acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT u.email
+            FROM   users u
+            WHERE  LEFT(u.created_at, 10) = $1
+              AND  u.email NOT IN (
+                       SELECT oe.user_email
+                       FROM   onboarding_emails oe
+                       WHERE  oe.day = $2
+                   )
+            """,
+            target_date,
+            day,
+        )
+    return [row["email"] for row in rows]
+
+
+async def mark_onboarding_sent(email: str, day: int) -> None:
+    """
+    Marchează emailul de onboarding `day` ca trimis pentru `email`.
+    UNIQUE constraint ignoră duplicate (INSERT ... ON CONFLICT DO NOTHING).
+    """
+    now = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    async with get_pool().acquire() as conn:
+        await conn.execute(
+            """
+            INSERT INTO onboarding_emails (user_email, day, sent_at)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (user_email, day) DO NOTHING
+            """,
+            email.lower(),
+            day,
+            now,
+        )
+
+============================================================
+📂 FIȘIER: ./render.yaml
+============================================================
+
+# =============================================================================
+#  render.yaml — Configurare Deploy Render.com
+#  Noian Cristian · Coaching Engine
+#  -----------------------------------------------------------------------------
+#  v1.1 FIX: APP_URL avea lipsă "sync: false" — comentariul ei era deplasat
+#             la finalul fișierului sub ADMIN_SECRET.
+#
+#  După primul deploy, completează valorile în:
+#  Render Dashboard → coaching-engine-api → Environment → Add Variable
+#
+#  Variabile obligatorii:
+#    DATABASE_URL  → URL-ul Neon.tech (postgresql://...)
+#    GROQ_API_KEY  → cheia de la console.groq.com (gsk_...)
+#    SECRET_KEY    → generată local cu: python3 -c "import secrets; print(secrets.token_hex(32))"
+#    RESEND_API_KEY → cheia de la resend.com (re_...)
+#    RESEND_FROM   → adresa de trimitere (onboarding@resend.dev sau noreply@domeniultau.ro)
+#    APP_URL       → URL-ul aplicației pe Render (https://coaching-engine.onrender.com)
+# =============================================================================
+
+services:
+  - type: web
+    name: coaching-engine-api
+
+    # env: docker → Render folosește Dockerfile-ul nostru
+    env: docker
+    dockerfilePath: ./Dockerfile
+
+    # Free tier: doarme după 15 min de inactivitate (~30s wake-up la primul request)
+    plan: free
+
+    # ── Variabile de mediu ────────────────────────────────────────────────────
+    # sync: false = completezi manual în dashboard după deploy
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+        # postgresql://neondb_owner:parola@ep-xxx.eu-central-1.aws.neon.tech/neondb?sslmode=require
+
+      - key: GROQ_API_KEY
+        sync: false
+        # gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxx (de la console.groq.com)
+
+      - key: SECRET_KEY
+        sync: false
+        # Generează: python3 -c "import secrets; print(secrets.token_hex(32))"
+        # IMPORTANT: folosește aceeași cheie local (.env) și pe Render
+        # Schimbarea ei invalidează toate sesiunile active ale userilor
+
+      - key: RESEND_API_KEY
+        sync: false
+        # re_xxxxxxxxxxxxxxxxxxxxxxxxxxxx (de la resend.com → API Keys)
+
+      - key: RESEND_FROM
+        sync: false
+        # Test fără domeniu propriu: onboarding@resend.dev
+        # Producție cu domeniu verificat: noreply@domeniultau.ro
+
+      - key: SENTRY_DSN
+        sync: false
+        # https://xxx@xxx.ingest.de.sentry.io/xxx (de la sentry.io)
+
+      - key: ADMIN_EMAIL
+        sync: false
+
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+        # Generează cu: python3 generate_vapid_keys.py
+
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+        # Generează cu: python3 generate_vapid_keys.py
+        # ATENȚIE: pe Render copiezi valoarea cu \n literal (cum o printează scriptul)
+        # push_engine.py normalizează automat \n → newline real
+
+      - key: VAPID_CLAIMS_SUB
+        sync: false
+        # mailto:contact@noianlab.ro
+
+      - key: ADMIN_SECRET
+        sync: false
+        # Secret random pentru endpoint-ul /push/trigger-daily (admin)
+        # Generează: python3 -c "import secrets; print(secrets.token_hex(32))"
+
+      - key: STRIPE_SECRET_KEY
+        sync: false
+        # sk_live_xxx sau sk_test_xxx (de la dashboard.stripe.com → API Keys)
+
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+        # pk_live_xxx sau pk_test_xxx (de la dashboard.stripe.com → API Keys)
+
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+        # whsec_xxx (de la dashboard.stripe.com → Developers → Webhooks → Signing secret)
+
+      - key: STRIPE_PRICE_ID
+        sync: false
+        # price_xxx (de la dashboard.stripe.com → Products → prețul subscripției)
+
+      - key: STRIPE_PORTAL_CONFIG_ID
+        sync: false
+        # bpc_xxx (opțional — de la dashboard.stripe.com → Billing → Customer portal)
+
+      - key: APP_URL
+        sync: false
+        # https://coaching-engine.onrender.com (URL-ul real al aplicației pe Render)
+
+============================================================
+📂 FIȘIER: ./main_password_reset_additions.py
+============================================================
+
+# =============================================================================
+#  main_password_reset_additions.py — Password Reset · Router
+#  Noian Cristian · Bazat pe inteligență artificială
+#  -----------------------------------------------------------------------------
+#  Modul NOU. Adaugă în main.py exact 4 linii:
+#
+#  ① La importuri (după `from main_p6_additions import init_p6_router`):
+#       from main_password_reset_additions import init_password_reset_router
+#       from database_password_reset import init_db_password_reset
+#
+#  ② În lifespan(), DUPĂ `await init_db_settings_e5()`:
+#       await init_db_password_reset()
+#
+#  ③ La routers, DUPĂ `app.include_router(init_streak_router())`:
+#       app.include_router(init_password_reset_router())
+#
+#  Endpoint-uri expuse:
+#    POST /auth/forgot-password  → primește email, trimite link cu token
+#    POST /auth/reset-password   → validează token, setează parola nouă
+#    GET  /auth/validate-token   → verifică dacă token e valid (folosit de UI)
+#
+#  Securitate implementată:
+#    · Anti-enumeration: /forgot-password returnează același mesaj indiferent
+#      dacă emailul există sau nu în DB. Atacatorul nu poate afla ce emailuri
+#      sunt înregistrate prin această rută.
+#    · Token UUID v4 cu expirare 15 minute.
+#    · Un token = un singur uz (marcat `used=True` după resetare).
+#    · Token-uri anterioare ale aceluiași user sunt invalidate la fiecare request.
+#    · Parola nouă: minim 8 caractere (validare Pydantic + validare JS).
+# =============================================================================
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field, field_validator
+
+from auth import get_password_hash
+from database import get_pool
+from database_password_reset import (
+    create_reset_token,
+    mark_token_used,
+    validate_reset_token,
+)
+from email_service import send_password_reset_email
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  MODELE PYDANTIC
+# ─────────────────────────────────────────────────────────────────────────────
+
+class ForgotPasswordRequest(BaseModel):
+    email: str = Field(..., min_length=3, max_length=255)
+
+
+class ResetPasswordRequest(BaseModel):
+    token:        str = Field(..., min_length=36, max_length=36,
+                              description="UUID token din emailul de resetare")
+    new_password: str = Field(..., min_length=8, max_length=128)
+
+    @field_validator("new_password")
+    @classmethod
+    def password_min_length(cls, v: str) -> str:
+        if len(v.strip()) < 8:
+            raise ValueError("Parola trebuie să aibă cel puțin 8 caractere.")
+        return v
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  UTILITAR INTERN
+# ─────────────────────────────────────────────────────────────────────────────
+
+async def _user_exists(email: str) -> bool:
+    """Verifică dacă emailul există în tabelul users. Zero informație expusă extern."""
+    async with get_pool().acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT 1 FROM users WHERE LOWER(email) = LOWER($1)",
+            email,
+        )
+    return row is not None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  FACTORY ROUTER — același pattern ca P4, P5, P6
+# ─────────────────────────────────────────────────────────────────────────────
+
+def init_password_reset_router() -> APIRouter:
+    """
+    Creează și returnează router-ul Password Reset.
+    Apelat O SINGURĂ DATĂ la pornirea serverului din main.py:
+        app.include_router(init_password_reset_router())
+    """
+    router = APIRouter(tags=["Auth · Password Reset"])
+
+    # ── POST /auth/forgot-password ────────────────────────────────────────────
+    @router.post("/auth/forgot-password")
+    async def forgot_password(req: ForgotPasswordRequest):
+        """
+        Inițiază fluxul de resetare parolă.
+
+        Flux:
+          1. Validează formatul emailului (Pydantic)
+          2. Verifică dacă emailul există în DB (intern, NEDIVULGAT extern)
+          3. Dacă există: generează token UUID, îl salvează, trimite emailul
+          4. Returnează ACELAȘI mesaj indiferent de existența emailului
+             → Anti-enumeration: atacatorul nu poate scaneze ce emailuri sunt înregistrate
+
+        Timing attack: generate_token() este apelat DOAR când userul există.
+        Asta poate crea o diferență de timp măsurabilă. La scara noastră (personal
+        coaching tool, nu bancă), aceasta este acceptabilă și nu necesită fake delay.
+        """
+        email       = req.email.strip().lower()
+        user_exists = await _user_exists(email)
+
+        if user_exists:
+            token = await create_reset_token(email)
+            sent  = await send_password_reset_email(email, token)
+
+            if not sent:
+                # Logăm intern — emailul poate eșua (Resend down, rate limit)
+                # dar nu expunem eroarea clientului (ar divulga că emailul există)
+                print(f"⚠️  Reset email failed pentru {email} (token salvat în DB)")
+
+        # Același răspuns indiferent de existența emailului → anti-enumeration
+        return {
+            "ok": True,
+            "message": (
+                "Dacă adresa de email este înregistrată, "
+                "vei primi un email cu instrucțiuni în câteva minute. "
+                "Verifică și folderul Spam."
+            ),
+        }
+
+    # ── POST /auth/reset-password ─────────────────────────────────────────────
+    @router.post("/auth/reset-password")
+    async def reset_password(req: ResetPasswordRequest):
+        """
+        Resetează parola cu un token valid.
+
+        Flux:
+          1. Validează token (există, nefolosit, neexpirat) → returnează emailul
+          2. Hashează parola nouă cu bcrypt
+          3. Actualizează password_hash în tabelul users
+          4. Marchează token-ul ca folosit (un token = un singur uz)
+          5. Returnează confirmare
+
+        Dacă token-ul e invalid/expirat → HTTP 400 cu mesaj clar.
+        """
+        email = await validate_reset_token(req.token)
+
+        if not email:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Link de resetare invalid sau expirat. "
+                    "Solicită un link nou din pagina de conectare."
+                ),
+            )
+
+        # Actualizăm parola în DB
+        new_hash = get_password_hash(req.new_password)
+        async with get_pool().acquire() as conn:
+            await conn.execute(
+                "UPDATE users SET password_hash = $1 WHERE LOWER(email) = LOWER($2)",
+                new_hash, email,
+            )
+
+        # Invalidăm token-ul imediat după folosire
+        await mark_token_used(req.token)
+
+        print(f"✅  Parolă resetată pentru {email}")
+
+        return {
+            "ok":      True,
+            "message": "Parola a fost resetată cu succes. Te poți conecta acum.",
+        }
+
+    # ── GET /auth/validate-token ──────────────────────────────────────────────
+    @router.get("/auth/validate-token")
+    async def validate_token_endpoint(token: str):
+        """
+        Verifică rapid dacă un token de resetare e valid.
+        Folosit de JS din index.html la încărcarea paginii cu ?reset_token=...
+        → Afișează formularul DOAR dacă token-ul e valid.
+        → Nu returnează emailul asociat (informație sensibilă inutilă pentru frontend).
+
+        Returnează: {valid: bool, message: str}
+        """
+        email = await validate_reset_token(token)
+        return {
+            "valid":   email is not None,
+            "message": "Token valid." if email else "Token invalid sau expirat.",
+        }
+
+    return router
+
+============================================================
+📂 FIȘIER: ./main_morning_additions.py
+============================================================
+
+# =============================================================================
+#  main_morning_additions.py — Morning Plan Confirm · Router
+#  Noian Cristian · Noian Lab
+#  -----------------------------------------------------------------------------
+#  Adaugă în main.py exact 3 linii:
+#
+#  ① La importuri (după `from main_push_additions import init_push_router`):
+#       from main_morning_additions import init_morning_router
+#       from database_morning_plan import init_db_morning_plan
+#
+#  ② În lifespan(), după `await init_db_templates()`:
+#       await init_db_morning_plan()
+#
+#  ③ La routers, după `app.include_router(init_push_router())`:
+#       app.include_router(init_morning_router())
+#
+#  Endpoint-uri expuse:
+#    POST /morning/confirm  → validează token UUID, bulk insert în food_logs,
+#                             marchează planul ca logat (single-use)
+#    GET  /morning/today    → returnează planul AI de azi (JWT obligatoriu)
+#    POST /morning/trigger  → admin: declanșează manual job-ul de dimineață
+#
+#  Securitate /morning/confirm:
+#    · Token UUID v4 single-use din tabelul morning_plans — nu necesită JWT
+#    · Service worker-ul nu are acces la localStorage (unde e JWT-ul)
+#    · already_confirmed → idempotent: SW poate retry fără duplicate în food_logs
+#    · confidence='high': planul AI e bazat pe macros reale ale userului —
+#      cel mai precis tip de log posibil, mai bun decât food_logger (medium)
+# =============================================================================
+
+import os
+import json
+import datetime
+
+from fastapi import APIRouter, HTTPException, Header, Depends
+from pydantic import BaseModel, Field
+
+from auth import require_user_email
+from database import get_pool
+from database_morning_plan import get_plan_by_token, mark_plan_confirmed
+from database_p4_additions import save_food_log
+from push_engine import send_morning_plans
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  MODELE PYDANTIC
+# ─────────────────────────────────────────────────────────────────────────────
+
+class MorningConfirmRequest(BaseModel):
+    token: str = Field(
+        ...,
+        min_length=36,
+        max_length=36,
+        description="UUID v4 din payload-ul push · single-use",
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  HELPER INTERN
+# ─────────────────────────────────────────────────────────────────────────────
+
+# meal_type → etichetă afișabilă în notes (UI food log)
+_MEAL_LABELS: dict[str, str] = {
+    "mic_dejun": "Mic Dejun",
+    "pranz":     "Prânz",
+    "cina":      "Cină",
+}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  FACTORY ROUTER
+# ─────────────────────────────────────────────────────────────────────────────
+
+def init_morning_router() -> APIRouter:
+    """
+    Router Morning Plan.
+    Apelat O SINGURĂ DATĂ în main.py: app.include_router(init_morning_router())
+    Pattern identic cu init_push_router(), init_streak_router() etc.
+    """
+    router = APIRouter(prefix="/morning", tags=["Morning Plan"])
+
+    # ── POST /morning/confirm ─────────────────────────────────────────────────
+    @router.post("/confirm")
+    async def morning_confirm(req: MorningConfirmRequest):
+        """
+        Confirmă planul de dimineață și îl loghează bulk în food_logs.
+
+        Apelat din:
+          · Service worker — action 'confirm-log' din notificationclick
+          · Frontend — butonul "Loghez tot" din panoul Morning Plan
+
+        NU necesită JWT — token UUID v4 single-use este autentificarea.
+        Service worker-ul nu are acces la localStorage (unde stă Bearer token-ul).
+
+        Flux:
+          1. get_plan_by_token(token) → email, plan_date, meals, already_confirmed
+          2. already_confirmed=True → returnează ok=True, idempotent=True (zero duplicate)
+          3. Bulk INSERT (3 mese) în food_logs · confidence='high'
+          4. mark_plan_confirmed(token) → confirmed_at = now · token inactiv
+
+        items_json: structură identică cu food_logger.py pentru compatibilitate
+        completă cu get_food_logs_by_date(), build_food_log_summary() și UI-ul
+        existent din tab Nutriție.
+        """
+        plan = await get_plan_by_token(req.token)
+
+        if not plan:
+            raise HTTPException(
+                status_code=404,
+                detail=(
+                    "Token invalid. Planul de dimineață nu a fost generat sau "
+                    "token-ul a expirat la re-generare."
+                ),
+            )
+
+        # Idempotent — SW-ul poate retry (network failure, offline → retry) fără duplicate
+        if plan["already_confirmed"]:
+            return {
+                "ok":           True,
+                "idempotent":   True,
+                "logs_created": 0,
+                "total_kcal":   0,
+                "message":      "Planul era deja logat. Niciun log nou creat.",
+            }
+
+        email     = plan["user_email"]
+        plan_date = plan["plan_date"]   # YYYY-MM-DD (informativ în response)
+        meals     = plan["meals"]       # list[dict] din plan_json
+
+        logs_created = 0
+        total_kcal   = 0
+
+        for meal in meals:
+            meal_type   = meal.get("meal_type", "general")
+            description = meal.get("name", "Masă plan AI")
+            calories    = int(meal.get("calories", 0))
+            protein_g   = int(meal.get("protein_g", 0))
+            carbs_g     = int(meal.get("carbs_g", 0))
+            fat_g       = int(meal.get("fat_g", 0))
+
+            # items_json: identic cu food_logger pentru UI-ul existent
+            items = [{
+                "name":      description,
+                "calories":  calories,
+                "protein_g": protein_g,
+                "carbs_g":   carbs_g,
+                "fat_g":     fat_g,
+                "quantity":  1,
+                "unit":      "portie",
+            }]
+
+            await save_food_log(
+                email=email,
+                meal_type=meal_type,
+                description=description,
+                calories=calories,
+                protein_g=protein_g,
+                carbs_g=carbs_g,
+                fat_g=fat_g,
+                items=items,
+                confidence="high",   # Plan AI pe macros reale > recunoaștere foto (medium)
+                notes=f"Plan AI · {_MEAL_LABELS.get(meal_type, meal_type)}",
+            )
+
+            logs_created += 1
+            total_kcal   += calories
+
+        # Marchează token-ul ca single-use — apeluri ulterioare → idempotent branch
+        await mark_plan_confirmed(req.token)
+
+        print(
+            f"✅  Morning confirm: {email} · {logs_created} mese · "
+            f"{total_kcal} kcal · plan_date={plan_date}"
+        )
+
+        return {
+            "ok":           True,
+            "idempotent":   False,
+            "logs_created": logs_created,
+            "total_kcal":   total_kcal,
+            "plan_date":    plan_date,
+            "message":      f"{logs_created} mese logate · {total_kcal} kcal total.",
+        }
+
+    # ── GET /morning/today ────────────────────────────────────────────────────
+    @router.get("/today")
+    async def morning_today(email: str = Depends(require_user_email)):
+        """
+        Returnează planul AI de azi al userului autentificat.
+        Frontend-ul îl afișează în tab Nutriție (secțiunea "Planul tău de azi").
+
+        Response dacă există plan:
+            {
+                "available":    true,
+                "plan_date":    "2025-08-08",
+                "meals":        [{meal_label, meal_type, name, description,
+                                  calories, protein_g, carbs_g, fat_g}],
+                "confirmed":    false,
+                "confirmed_at": null,
+                "token":        "uuid-v4",
+                "created_at":   "2025-08-08T08:00:01"
+            }
+
+        Response dacă nu există (user fără TDEE sau job n-a rulat încă):
+            { "available": false, "plan_date": "2025-08-08" }
+        """
+        today = datetime.date.today().isoformat()
+
+        async with get_pool().acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT plan_json, token, confirmed_at, created_at
+                FROM morning_plans
+                WHERE LOWER(user_email) = LOWER($1) AND plan_date = $2
+                """,
+                email, today,
+            )
+
+        if not row:
+            return {"available": False, "plan_date": today}
+
+        return {
+            "available":    True,
+            "plan_date":    today,
+            "meals":        json.loads(row["plan_json"]),
+            "confirmed":    row["confirmed_at"] is not None,
+            "confirmed_at": row["confirmed_at"],
+            "token":        row["token"],
+            "created_at":   row["created_at"],
+        }
+
+    # ── POST /morning/trigger ─────────────────────────────────────────────────
+    @router.post("/trigger", include_in_schema=False)
+    async def morning_trigger(
+        x_admin_secret: str | None = Header(default=None, alias="X-Admin-Secret"),
+    ):
+        """
+        Declanșează manual job-ul de dimineață (admin only).
+        Pattern identic cu /push/trigger-daily.
+
+        Curl:
+            curl -X POST https://api.noianlab.ro/morning/trigger \\
+                 -H "X-Admin-Secret: secretul_din_env"
+        """
+        admin_secret = os.getenv("ADMIN_SECRET", "")
+        if not admin_secret or x_admin_secret != admin_secret:
+            raise HTTPException(status_code=403, detail="Acces interzis.")
+
+        await send_morning_plans()
+        return {"ok": True, "message": "Job dimineață declanșat manual."}
+
+    return router

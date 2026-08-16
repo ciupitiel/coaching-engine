@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Termeni și Condiții · Noian Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080808; --surf: #111111; --border: #1e1e1e;
+      --accent: #c4622d; --text: #d4d0cb; --text-2: #8e8880; --text-3: #4a4a4a;
+      --radius: 14px;
+    }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.7; -webkit-font-smoothing: antialiased;
+    }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 60px;
+      background: rgba(8,8,8,0.9); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+    .nav-wordmark { font-size: 14px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text); }
+    .nav-wordmark span { color: var(--accent); }
+    .nav-back { font-size: 13px; color: var(--text-2); text-decoration: none; transition: color .15s; }
+    .nav-back:hover { color: var(--text); }
+
+    .container { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+
+    .doc-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+    .doc-title { font-size: 32px; font-weight: 700; color: #fff; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .doc-meta { font-size: 13px; color: var(--text-3); margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+
+    h2 { font-size: 17px; font-weight: 600; color: #fff; margin: 40px 0 14px; letter-spacing: -0.01em; }
+    h2::before { content: '— '; color: var(--accent); }
+    p { font-size: 14px; color: var(--text-2); margin-bottom: 14px; line-height: 1.75; }
+    ul { padding-left: 20px; margin-bottom: 14px; }
+    ul li { font-size: 14px; color: var(--text-2); margin-bottom: 6px; line-height: 1.65; }
+    strong { color: var(--text); font-weight: 600; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .notice {
+      background: var(--surf); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+      border-radius: var(--radius); padding: 18px 20px; margin: 32px 0;
+      font-size: 13.5px; color: var(--text-2); line-height: 1.65;
+    }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 24px;
+      text-align: center; font-size: 12px; color: var(--text-3);
+    }
+    footer a { color: var(--text-2); text-decoration: none; margin: 0 8px; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/landing">
+    <div class="nav-dot"></div>
+    <span class="nav-wordmark">Noian <span>Lab</span></span>
+  </a>
+  <a class="nav-back" href="/landing">← Înapoi</a>
+</nav>
+
+<div class="container">
+  <p class="doc-eyebrow">Document legal</p>
+  <h1 class="doc-title">Termeni și Condiții</h1>
+  <p class="doc-meta">· Ultima actualizare: iulie 2026</p>
+
+  <div class="notice">
+    Prin crearea unui cont și utilizarea aplicației Noian Lab, accepți integral acești Termeni și Condiții. Te rugăm să îi citești cu atenție înainte de utilizare.
+  </div>
+
+  <h2>Despre serviciu</h2>
+  <p>Noian Lab ("aplicația", "serviciul") este o platformă de coaching nutrițional bazată pe inteligență artificială, operată de <strong>Noian Cristian</strong>, persoană fizică cu domiciliul în România. Aplicația furnizează calcule metabolice (TDEE, BMR, macronutrienți), înregistrare alimente, planuri alimentare și recomandări generate de AI.</p>
+  <p>Serviciul este oferit <strong>gratuit</strong> în forma sa actuală, fără garanții privind disponibilitatea neîntreruptă sau funcționalitatea completă în orice moment.</p>
+
+  <h2>Nu este sfat medical</h2>
+  <div class="notice">
+    <strong>Atenție importantă:</strong> Noian Lab furnizează informații și calcule cu caracter educativ și orientativ. Conținutul generat de aplicație, inclusiv recomandările AI, <strong>nu constituie sfat medical, nutrițional clinic sau diagnostic</strong>. Consultați întotdeauna un medic sau nutriționist autorizat înainte de a modifica semnificativ dieta sau programul de antrenament, în special dacă aveți afecțiuni medicale preexistente.
+  </div>
+
+  <h2>Eligibilitate și cont</h2>
+  <p>Pentru a utiliza serviciul trebuie să ai cel puțin <strong>13 ani</strong>. Prin crearea unui cont confirmi că ai vârsta minimă cerută.</p>
+  <p>Ești responsabil de:</p>
+  <ul>
+    <li>Confidențialitatea parolei contului tău</li>
+    <li>Toate activitățile desfășurate prin contul tău</li>
+    <li>Acuratețea datelor introduse (greutate, înălțime, vârstă etc.)</li>
+    <li>Notificarea noastră imediată în caz de acces neautorizat la cont</li>
+  </ul>
+
+  <h2>Utilizare acceptabilă</h2>
+  <p>Ești de acord să nu utilizezi aplicația pentru a:</p>
+  <ul>
+    <li>Introduce date false sau înșelătoare</li>
+    <li>Testa sau exploata vulnerabilități de securitate</li>
+    <li>Utiliza sisteme automate pentru a accesa serviciul (scraping, boți)</li>
+    <li>Depăși limitele de utilizare stabilite (rate limiting per cont)</li>
+    <li>Încerca să accesezi datele altor utilizatori</li>
+  </ul>
+
+  <h2>Inteligența artificială și limitările acesteia</h2>
+  <p>Aplicația utilizează modele AI de la terți, pentru a genera răspunsuri, analize și planuri alimentare. Acestea pot conține erori, imprecizii sau informații depășite. <strong>Nu te baza exclusiv pe răspunsurile AI</strong> pentru decizii importante privind sănătatea.</p>
+  <p>Estimările calorice și nutriționale generate de AI au un caracter aproximativ. Valorile exacte pot varia în funcție de preparare, marcă și porție reală.</p>
+
+  <h2>Disponibilitatea serviciului</h2>
+  <p>Serviciul este oferit "ca atare" (as-is), fără garanții exprese sau implicite de disponibilitate continuă. Putem întrerupe temporar accesul pentru mentenanță, actualizări sau din cauze tehnice fără preaviz. Nu suntem răspunzători pentru pierderi cauzate de indisponibilitatea serviciului.</p>
+
+  <h2>Limitarea răspunderii</h2>
+  <p>În limita maximă permisă de legea română, Noian Cristian nu este răspunzător pentru daune directe, indirecte, incidentale sau consecutive rezultate din utilizarea sau incapacitatea de utilizare a serviciului, inclusiv pierderi de date sau prejudicii pentru sănătate.</p>
+
+  <h2>Ștergerea contului</h2>
+  <p>Poți solicita ștergerea completă a contului și a tuturor datelor asociate din secțiunea <strong>Settings → Șterge contul</strong> din aplicație. Ștergerea este permanentă și irevocabilă.</p>
+  <p>Ne rezervăm dreptul de a suspenda sau șterge conturi care încalcă acești termeni, fără notificare prealabilă.</p>
+
+  <h2>Modificări ale termenilor</h2>
+  <p>Putem actualiza acești termeni oricând. Modificările semnificative vor fi comunicate prin email sau prin notificare în aplicație. Continuarea utilizării serviciului după modificări constituie acceptul noilor termeni.</p>
+
+  <h2>Legea aplicabilă</h2>
+  <p>Acești termeni sunt guvernați de legislația română. Orice dispute vor fi soluționate de instanțele competente din România.</p>
+
+  <h2>Contact</h2>
+  <p>Pentru întrebări privind acești termeni, ne poți contacta la: <a href="mailto:noianlab.contact@gmail.com">noianlab.contact@gmail.com</a></p>
+</div>
+
+<footer>
+  <span>© 2026 Noian Lab · Bazat pe inteligență artificială</span><br><br>
+  <a href="/landing">Acasă</a>
+  <a href="/terms">Termeni</a>
+  <a href="/privacy">Confidențialitate</a>
+  <a href="/">Aplicație</a>
+</footer>
+
+</body>
+</html>
