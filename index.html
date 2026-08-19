@@ -4871,7 +4871,7 @@ async function _startPhotoFlow(file) {
         return;
     }
 
-    _setPhotoStatus('AI analizează alimentele...', 'Analiză Groq Vision');
+    _setPhotoStatus('AI analizează alimentele...', 'Analiză Gemini Vision');
     await _analyzePhoto(base64);
 }
 
@@ -4941,17 +4941,23 @@ function _compressImage(file, maxPx, quality) {
     });
 }
 
-// ── Analiză AI ───────────────────────────────────────────────────────────────
 async function _analyzePhoto(base64DataUrl) {
     const token = localStorage.getItem('coaching_token');
     if (!token) { closePhotoModal(); return; }
 
+    // Timeout 45 secunde — dacă Gemini nu răspunde, nu mai stă la infinit
+    const controller = new AbortController();
+    const timeoutId  = setTimeout(() => controller.abort(), 45000);
+
     try {
         const res = await fetch('/food/photo/analyze', {
-            method: 'POST',
+            method:  'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ image_base64: base64DataUrl, meal_type: selectedMealType }),
+            body:    JSON.stringify({ image_base64: base64DataUrl, meal_type: selectedMealType }),
+            signal:  controller.signal,
         });
+        clearTimeout(timeoutId);
+
         const data = await res.json();
 
         _showPhotoScanLine(false);
@@ -4973,9 +4979,15 @@ async function _analyzePhoto(base64DataUrl) {
         }
 
     } catch (err) {
+        clearTimeout(timeoutId);
         _showPhotoScanLine(false);
         document.getElementById('photoStatusRow').style.display = 'none';
-        showToast('⚠ Eroare de conexiune. Verifică internetul și încearcă din nou.', true);
+
+        if (err.name === 'AbortError') {
+            showToast('⚠ Analiza a durat prea mult. Încearcă din nou.', true);
+        } else {
+            showToast('⚠ Eroare de conexiune. Verifică internetul și încearcă din nou.', true);
+        }
         closePhotoModal();
     }
 }
