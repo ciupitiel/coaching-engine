@@ -16,14 +16,14 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 # Candidați în ordinea preferinței — auto-detectăm primul disponibil
 _MODEL_CANDIDATES = [
-    "gemini-2.5-flash-preview-05-20",
+    "gemini-2.5-flash",
+    "gemini-flash-latest",
     "gemini-2.5-flash-lite",
-    "gemini-2.5-flash-lite-preview-06-17",
-    "gemini-1.5-flash-latest",
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-8b",
-    "gemini-1.5-pro-latest",
-    "gemini-1.5-pro",
+    "gemini-flash-lite-latest",
+    "gemini-2.5-pro",
+    "gemini-3-flash-preview",
+    "gemini-3.5-flash",
+    "gemini-3.7-flash",
 ]
 
 # Cache model — detectat o dată la startup, refolosit la fiecare request
