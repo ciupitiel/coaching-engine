@@ -57,6 +57,7 @@ import asyncio
 import stripe
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from database import get_pool
 from auth import require_user_email
 from database_stripe import (
     find_email_by_customer,
@@ -267,10 +268,31 @@ def init_stripe_router() -> APIRouter:
         if _STRIPE_PORTAL_CONFIG:
             portal_kwargs["configuration"] = _STRIPE_PORTAL_CONFIG
 
-        session = await asyncio.to_thread(
-            stripe.billing_portal.Session.create,
-            **portal_kwargs,
-        )
+        try:
+            session = await asyncio.to_thread(
+                stripe.billing_portal.Session.create,
+                **portal_kwargs,
+            )
+        except stripe.InvalidRequestError as e:
+            if "No such customer" in str(e):
+                new_customer = await asyncio.to_thread(
+                    stripe.Customer.create,
+                    email=email,
+                    metadata={"app": "noian-lab"},
+                )
+                new_customer_id = new_customer.id
+                async with get_pool().acquire() as conn:
+                    await conn.execute(
+                        "UPDATE users SET stripe_customer_id = $1 WHERE LOWER(email) = LOWER($2)",
+                        new_customer_id, email
+                    )
+                portal_kwargs["customer"] = new_customer_id
+                session = await asyncio.to_thread(
+                    stripe.billing_portal.Session.create,
+                    **portal_kwargs,
+                )
+            else:
+                raise
 
         return {"portal_url": session.url}
 
