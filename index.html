@@ -2438,10 +2438,10 @@ input[name="aggressiveness"]:checked+.goal-option { background:var(--accent-glow
         <button class="btn-export" onclick="exportData('csv')">↓ &nbsp;Descarcă loguri + check-in-uri (.csv)</button>
         <div style="margin-top:8px;padding-top:16px;border-top:1px solid var(--border)">
             <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5">Ștergerea contului este ireversibilă. Toate datele tale vor fi eliminate permanent.</p>
-            <button class="btn-export btn-danger" id="btnDeleteStep1" onclick="showDeleteConfirm()">✕ &nbsp;Șterge contul</button>
-            <div id="deleteConfirmRow" class="delete-confirm-row">
+            <button class="btn-export btn-danger" id="btnDeleteStep1b" onclick="showDeleteConfirm()">✕ &nbsp;Șterge contul</button>
+            <div id="deleteConfirmRow2" class="delete-confirm-row">
                 <button class="btn-export btn-danger" id="btnConfirmDelete" onclick="deleteAccount()" style="flex:1">Da, șterge definitiv</button>
-                <button class="btn-export" onclick="document.getElementById('deleteConfirmRow').classList.remove('visible');document.getElementById('btnDeleteStep1').style.display='flex'" style="flex:1">Anulează</button>
+                <button class="btn-export" onclick="document.getElementById('deleteConfirmRow2').classList.remove('visible');document.getElementById('btnDeleteStep1').style.display='flex'" style="flex:1">Anulează</button>
             </div>
         </div>
     </div>
@@ -6511,6 +6511,10 @@ async function exportData(format) {
 function showDeleteConfirm() {
     document.getElementById('deleteConfirmRow').classList.add('visible');
     document.getElementById('btnDeleteStep1').style.display = 'none';
+}
+function showDeleteConfirm2() {
+    document.getElementById('deleteConfirmRow2').classList.add('visible');
+    document.getElementById('btnDeleteStep1b').style.display = 'none';
 }
 async function deleteAccount() {
     const token = localStorage.getItem('coaching_token');

@@ -58,7 +58,7 @@ SW_CONTENT: str = r"""
 //  Push: Web Push API + VAPID · Morning Plan actions
 // ============================================================
 
-const CACHE_VER  = 'coaching-v4.6';
+const CACHE_VER  = 'coaching-v4.7';
 const CACHE_URLS = [
     '/',
     '/manifest.json',
